@@ -2,8 +2,8 @@
 
 // Открываем KV хранилище один раз при старте сервера
 // Это важно делать вне обработчика requestHandler, чтобы избежать повторного открытия для каждого запроса.
-import { extname } from "jsr:@std/path";
-import { lookup } from "jsr:@std/media-types"; // <--- Эта строка важна!
+import { extname } from "jsr:@std/path/extname.ts";
+import { lookup } from "jsr:@std/media-types/lookup.ts"; // <--- Эта строка важна!
 const kv = await Deno.openKv();
 
 // Централизованные заголовки для CORS
