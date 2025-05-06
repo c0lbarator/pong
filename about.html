@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pong - Об игре</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      color: #fff;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #333;
+      padding-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    h2 {
+      font-size: 24px;
+      margin-top: 40px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 10px;
+      color: #4CAF50;
+    }
+
+    h3 {
+      font-size: 20px;
+      margin-top: 25px;
+      color: #2196F3;
+    }
+
+    p {
+      margin-bottom: 20px;
+    }
+
+    .back-button {
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .back-button:hover {
+      background-color: #0b7dda;
+    }
+
+    .about-section {
+      background-color: #111;
+      border-radius: 8px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .controls-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    .controls-table th,
+    .controls-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #333;
+    }
+
+    .controls-table th {
+      background-color: #222;
+    }
+
+    .controls-table tr:nth-child(even) {
+      background-color: #0a0a0a;
+    }
+
+    .feature-list {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    .feature-list li {
+      padding: 10px 0;
+      border-bottom: 1px dotted #333;
+    }
+
+    .feature-list li:before {
+      content: "✓ ";
+      color: #4CAF50;
+      font-weight: bold;
+    }
+
+    .history-image {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 20px auto;
+      border-radius: 8px;
+      border: 2px solid #333;
+    }
+
+    .credits {
+      font-style: italic;
+      color: #aaa;
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #333;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      h2 {
+        font-size: 22px;
+      }
+
+      .about-section {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Об игре Pong</h1>
+      <a href="index.html" class="difficulty-btn">Вернуться к игре</a>
+    </header>
+
+    <div class="about-section">
+      <h2>История игры</h2>
+      <p>
+        Pong — одна из самых ранних аркадных видеоигр и первая спортивная аркадная видеоигра. Она была выпущена в 1972 году компанией Atari, основанной Ноланом Бушнеллом и Тедом Дабни.
+        Игра была вдохновлена игрой, похожей на пинг-понг, которая была частью Magnavox Odyssey — первой коммерческой домашней игровой консоли.
+      </p>
+      <p>
+        Pong стала первой коммерчески успешной видеоигрой и помогла заложить основы индустрии видеоигр. Простой игровой процесс, интуитивно понятное управление
+        и соревновательные элементы сделали её мгновенным хитом в аркадах по всей территории США.
+      </p>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Pong.png" alt="Оригинальная аркадная игра Pong" class="history-image">
+      <p>
+        Эта современная веб-реализация Pong сохраняет верность оригинальному игровому процессу, добавляя современные функции, такие как настраиваемые уровни сложности,
+        режим для двух игроков и систему постоянной таблицы лидеров.
+      </p>
+    </div>
+
+    <div class="about-section">
+      <h2>Как играть</h2>
+      <p>
+        Pong — это двухмерная спортивная игра, имитирующая настольный теннис. Игроки управляют внутриигровой ракеткой, перемещая её вертикально по левой или правой стороне экрана.
+        Они могут соревноваться с другим игроком или с компьютером, управляющим второй ракеткой. Игроки используют ракетки, чтобы отбивать мяч туда и обратно.
+      </p>
+
+      <h3>Режимы игры</h3>
+      <p>
+        <strong>Одиночный режим:</strong> Игра против компьютерного ИИ с настраиваемыми уровнями сложности (Лёгкий, Средний, Сложный).
+        <br>
+        <strong>Режим для двух игроков:</strong> Игра против друга на одном компьютере.
+      </p>
+
+      <h3>Управление</h3>
+      <table class="controls-table">
+        <thead>
+          <tr>
+            <th>Игрок</th>
+            <th>Клавиши</th>
+            <th>Действие</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Игрок 1 (Левый)</td>
+            <td>Клавиша W</td>
+            <td>Перемещение ракетки вверх</td>
+          </tr>
+          <tr>
+            <td>Игрок 1 (Левый)</td>
+            <td>Клавиша S</td>
+            <td>Перемещение ракетки вниз</td>
+          </tr>
+          <tr>
+            <td>Игрок 2 (Правый)</td>
+            <td>Стрелка вверх</td>
+            <td>Перемещение ракетки вверх</td>
+          </tr>
+          <tr>
+            <td>Игрок 2 (Правый)</td>
+            <td>Стрелка вниз</td>
+            <td>Перемещение ракетки вниз</td>
+          </tr>
+          <tr>
+            <td>Общее</td>
+            <td>Клавиша ESC</td>
+            <td>Пауза</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Подсчёт очков</h3>
+      <p>
+        Очки начисляются, когда один игрок не может вернуть мяч другому игроку. Первый игрок, набравший 30 очков, выигрывает игру.
+        По мере прогресса игры скорость мяча увеличивается, что делает его возврат более сложным.
+      </p>
+    </div>
+
+    <div class="about-section">
+      <h2>Особенности</h2>
+      <ul class="feature-list">
+        <li>Классический игровой процесс Pong с использованием современных веб-технологий</li>
+        <li>Одиночный режим с настраиваемой сложностью ИИ</li>
+        <li>Режим для двух игроков для локальной многопользовательской игры</li>
+        <li>Динамическая физика мяча с увеличивающейся скоростью</li>
+        <li>Звуковые эффекты для ударов мяча и столкновений со стенами</li>
+        <li>Адаптивный дизайн, работающий на различных размерах экранов</li>
+        <li>Постоянная система таблицы лидеров с использованием хранилища Deno KV</li>
+        <li>Отслеживание игровой статистики</li>
+        <li>Функция паузы</li>
+      </ul>
+    </div>
+
+    <div class="about-section">
+      <h2>Техническая реализация</h2>
+      <p>
+        Эта версия Pong реализована с использованием современных веб-технологий:
+      </p>
+      <ul class="feature-list">
+        <li>HTML5 Canvas для отрисовки игры</li>
+        <li>JavaScript для игровой логики и анимаций</li>
+        <li>CSS3 для стилизации и адаптивного дизайна</li>
+        <li>Web Audio API для звуковых эффектов</li>
+        <li>Deno и Deno KV для серверного хранения результатов игр</li>
+        <li>Модульная архитектура кода с отдельными классами для игровых компонентов</li>
+      </ul>
+    </div>
+
+    <div class="credits">
+      <p>
+        Эта реализация Pong была создана как современная веб-версия классической аркадной игры.
+        <br>
+        Оригинальная игра Pong была создана Алланом Алкорном для Atari Inc. © 1972.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
