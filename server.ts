@@ -3,7 +3,7 @@
 // Открываем KV хранилище один раз при старте сервера
 // Это важно делать вне обработчика requestHandler, чтобы избежать повторного открытия для каждого запроса.
 import { extname } from "jsr:@std/path/extname";
-import { content_type } from "jsr:@std/media-types/content_type"; // <--- Эта строка важна!
+import { contentType } from "jsr:@std/media-types/content-type"; // <--- Эта строка важна!
 const kv = await Deno.openKv();
 
 // Централизованные заголовки для CORS
@@ -141,13 +141,13 @@ async function requestHandler(req: Request): Promise<Response> {
 
             // Определяем Content-Type на основе расширения файла
             // Используем встроенную функцию lookup из std/media_types для надежности
-            const contentType = content_type(filePath) || 'application/octet-stream'; // По умолчанию, если тип неизвестен
+            const content_type = contentType(filePath) || 'application/octet-stream'; // По умолчанию, если тип неизвестен
 
             // Отдаем файл клиенту с правильным Content-Type и статусом 200
             return new Response(fileContent, {
                 status: 200,
                 headers: {
-                    "Content-Type": contentType,
+                    "Content-Type": content_type,
                     // Также добавляем заголовки CORS и потенциально Cache-Control для статики
                     ...CORS_HEADERS,
                     "Cache-Control": "public, max-age=3600", // Кэшировать статику на 1 час
