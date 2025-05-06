@@ -35,7 +35,31 @@
           </div>
           <div id="game-end" class="hidden">
             <h2 id="winner-text"></h2>
-            <button id="restart-button">Play Again</button>
+
+            <form id="player-name-form" class="hidden">
+              <div id="single-player-name-group" class="form-group">
+                <label for="single-player-name">Enter your name:</label>
+                <input type="text" id="single-player-name" placeholder="Your name" required>
+              </div>
+
+              <div id="player1-name-group" class="form-group hidden">
+                <label for="player1-name">Player 1 name:</label>
+                <input type="text" id="player1-name" placeholder="Player 1 name" required>
+              </div>
+
+              <div id="player2-name-group" class="form-group hidden">
+                <label for="player2-name">Player 2 name:</label>
+                <input type="text" id="player2-name" placeholder="Player 2 name" required>
+              </div>
+            </form>
+
+            <div id="save-status"></div>
+
+            <div class="button-group">
+              <button id="save-result-button">Save Result</button>
+              <button id="view-leaderboard-button" class="hidden">View Leaderboard</button>
+              <button id="restart-button">Play Again</button>
+            </div>
           </div>
           <div id="pause-menu" class="hidden">
             <h2>Game Paused</h2>
@@ -45,10 +69,35 @@
         </div>
         <canvas id="game-canvas"></canvas>
         <div id="controls">
-          <p>Press ESC to pause | Player 1: Arrow keys | Player 2: W/S keys</p>
+          <p>Press ESC to pause | Player 1: W/S keys | Player 2: Arrow keys</p>
+        </div>
+      </div>
+
+      <!-- Leaderboard -->
+      <div id="leaderboard" class="hidden">
+        <div class="leaderboard-container">
+          <div class="leaderboard-header">
+            <h2>Leaderboard</h2>
+            <button id="close-leaderboard">&times;</button>
+          </div>
+          <table class="leaderboard-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Player(s)</th>
+                <th>Score</th>
+                <th>Winner/Difficulty</th>
+                <th>Date & Time</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-table-body">
+              <!-- Leaderboard data will be inserted here -->
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
     <script type="module" src="/main.js"></script>
   </body>
+</html>
 </html>

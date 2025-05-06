@@ -1,43 +1,54 @@
-import './style.css';
-import { Game } from './js/game.js';
-import { Menu } from './js/menu.js';
+import { Game } from "./game.js"
+import { Leaderboard } from "./leaderboard.js"
 
-const menu = new Menu();
-const game = new Game();
+document.addEventListener("DOMContentLoaded", () => {
+  const game = new Game()
+  const leaderboard = new Leaderboard()
 
-// Handle game mode selection
-document.getElementById('single-player').addEventListener('click', () => {
-  document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-  document.getElementById('single-player').classList.add('active');
-  game.setTwoPlayerMode(false);
-  document.querySelector('.difficulty-container').style.display = 'block';
-});
+  const singlePlayerBtn = document.getElementById("single-player")
+  const twoPlayerBtn = document.getElementById("two-player")
+  const startButton = document.getElementById("start-button")
+  const restartButton = document.getElementById("restart-button")
+  const resumeButton = document.getElementById("resume-button")
+  const quitButton = document.getElementById("quit-button")
 
-document.getElementById('two-player').addEventListener('click', () => {
-  document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-  document.getElementById('two-player').classList.add('active');
-  game.setTwoPlayerMode(true);
-  document.querySelector('.difficulty-container').style.display = 'none';
-});
+  singlePlayerBtn.addEventListener("click", () => {
+    document.querySelectorAll(".mode-btn").forEach((btn) => btn.classList.remove("active"))
+    singlePlayerBtn.classList.add("active")
+    game.setTwoPlayerMode(false)
+    document.querySelector(".difficulty-container").classList.remove("hidden")
+  })
 
-document.getElementById('start-button').addEventListener('click', () => {
-  menu.hide();
-  game.start();
-});
+  twoPlayerBtn.addEventListener("click", () => {
+    document.querySelectorAll(".mode-btn").forEach((btn) => btn.classList.remove("active"))
+    twoPlayerBtn.classList.add("active")
+    game.setTwoPlayerMode(true)
+    document.querySelector(".difficulty-container").classList.add("hidden")
+  })
 
-document.getElementById('restart-button').addEventListener('click', () => {
-  document.getElementById('game-end').classList.add('hidden');
-  game.reset();
-  game.start();
-});
+  startButton.addEventListener("click", () => {
+    document.getElementById("menu").classList.add("hidden")
+    game.reset()
+    game.start()
+  })
 
-document.getElementById('resume-button').addEventListener('click', () => {
-  document.getElementById('pause-menu').classList.add('hidden');
-  game.resume();
-});
+  restartButton.addEventListener("click", () => {
+    document.getElementById("game-end").classList.add("hidden")
+    document.getElementById("player-name-form").classList.add("hidden")
+    document.getElementById("save-status").textContent = ""
+    document.getElementById("view-leaderboard-button").classList.add("hidden")
+    game.reset()
+    game.start()
+  })
 
-document.getElementById('quit-button').addEventListener('click', () => {
-  document.getElementById('pause-menu').classList.add('hidden');
-  game.reset();
-  menu.show();
-});
+  resumeButton.addEventListener("click", () => {
+    document.getElementById("pause-menu").classList.add("hidden")
+    game.resume()
+  })
+
+  quitButton.addEventListener("click", () => {
+    document.getElementById("pause-menu").classList.add("hidden")
+    document.getElementById("menu").classList.remove("hidden")
+    game.isRunning = false
+  })
+})
