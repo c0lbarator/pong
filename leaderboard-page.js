@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let leaderboardData = []
     const currentSort = {
         column: "rank",
-        direction: "asc",
+        direction: "desc",
     }
 
     // Load leaderboard data
