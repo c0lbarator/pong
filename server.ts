@@ -115,41 +115,54 @@ async function requestHandler(req: Request): Promise<Response> {
     // --- ОБРАБОТКА СТАТИЧЕСКИХ ФАЙЛОВ ---
     // Если ни один API маршрут не подошел, пытаемся отдать статический файл
     try {
-        let filePath = pathname;
-        // Если запрашивается корень сайта ("/"), отдаем index.html
-        if (filePath === "/" || filePath === "") {
-            filePath = "/index.html";
+        let requestedPath = pathname;
+        // Если запрашивается корень сайта ("/"), или пустой путь, отдаем index.html
+        if (requestedPath === "/" || requestedPath === "") {
+            requestedPath = "/index.html";
         }
 
-        // Формируем путь к файлу относительно текущей директории, где запущен скрипт
-        // Важно: Убедитесь, что ваш index.html и скрипты игры лежат в той же директории,
-        // откуда вы запускаете этот Deno сервер, или укажите правильный базовый путь.
-        // Deno.cwd() возвращает текущую рабочую директорию.
-        // Безопаснее конструировать путь через `new URL(filePath, `file://${Deno.cwd()}/`).pathname`
-        // или просто `.` если файлы в той же директории.
-        // Для простоты предположим, что все файлы в текущей директории.
-        const fullFilePath = `.${filePath}`; // Например, "./index.html" или "./game.js"
+        // Формируем путь к файлу относительно текущей рабочей директории (корень проекта на Deno Deploy)
+        // Безопаснее всего использовать относительный путь, начинающийся с './'
+        const filePath = `.${requestedPath}`; // Например, "./index.html" или "./game.js"
 
-        // Проверяем, что файл существует, чтобы избежать ошибок, если serveFile не найдет файл
-        // и не вернет кастомную 404, а выкинет исключение
-        try {
-            await Deno.stat(fullFilePath); // Проверяет существование файла
-        } catch (e) {
-            if (e instanceof Deno.errors.NotFound) {
-                // Если файл не найден, возвращаем стандартный 404
-                return new Response("File Not Found", { status: 404 });
+        console.log(`Attempting to serve static file: ${filePath} for request path: ${pathname}`);
+
+        // serveFile автоматически определяет Content-Type по расширению файла
+        // и обрабатывает ошибки NotFound, возвращая 404 Response.
+        const response = await serveFile(req, filePath);
+
+        console.log(
+            `Served ${filePath}. Response status: ${response.status}. Original Content-Type from serveFile: ${
+                response.headers.get("Content-Type")
+            }`
+        );
+
+        // Проверка и принудительная коррекция MIME-типа для JS файлов, если serveFile не справился
+        // Это может быть необходимо на Deno Deploy, если есть странности с определением типов.
+        if (filePath.endsWith(".js") &&响应.status === 200) { // Проверяем, что файл .js и успешно найден
+            const currentContentType = response.headers.get("Content-Type");
+            const expectedJsContentType1 = "application/javascript";
+            const expectedJsContentType2 = "text/javascript"; // Тоже валидный
+
+            if (currentContentType !== expectedJsContentType1 && currentContentType !== expectedJsContentType2) {
+                console.warn(
+                    `WARN: Incorrect Content-Type "${currentContentType}" for ${filePath}. Overriding to "${expectedJsContentType1}".`
+                );
+                // Нужно создать новый Response, так как headers у существующего могут быть иммутабельными.
+                // Читаем тело оригинального ответа
+                const body = await response.arrayBuffer();
+                // Копируем оригинальные заголовки и устанавливаем правильный Content-Type
+                const newHeaders = new Headers(response.headers);
+                newHeaders.set("Content-Type", expectedJsContentType1);
+
+                return new Response(body, {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: newHeaders,
+                });
             }
-            throw e; // Другие ошибки (например, нет прав доступа)
         }
 
-        // serveFile автоматически определит Content-Type по расширению файла
-        const response = await serveFile(req, fullFilePath);
-        // Для статических файлов обычно не нужны специфичные CORS заголовки,
-        // если только они не запрашиваются кросс-доменно специфическим образом.
-        // Браузер сам управляет этим для <script>, <img>, <link rel="stylesheet">.
-        // Если игра делает AJAX/fetch запросы к *этому же* серверу за *этими же* файлами
-        // и эти запросы почему-то считаются cross-origin, тогда могут понадобиться.
-        // Но для обычного обслуживания HTML/JS/CSS они не нужны.
         return response;
 
     } catch (error) {
