@@ -289,7 +289,7 @@ export class Game {
           playerScore: this.score.playerScore,
           winner: this.score.playerScore > this.score.aiScore ? player1Name : player2Name,
         }
-        const response = await fetch(`${this.serverUrl}/api/save-result`, {
+        const response1 = await fetch(`${this.serverUrl}/api/save-result`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -297,15 +297,9 @@ export class Game {
           body: JSON.stringify(gameData),
         })
 
-        const result = await response.json()
+        const result1 = await response.json()
 
-        if (result.success) {
-          statusMessage.textContent = "Result saved successfully!"
-          statusMessage.className = "success-message"
-
-          // Show the leaderboard button
-          document.getElementById("view-leaderboard-button").classList.remove("hidden")
-        } else {
+        if (!result1.success) {
           throw new Error(result.error || "Failed to save result")
         }
         gameData = {
@@ -314,7 +308,7 @@ export class Game {
           playerScore: this.score.aiScore,
           winner: this.score.playerScore > this.score.aiScore ? player1Name : player2Name,
         }
-        const response = await fetch(`${this.serverUrl}/api/save-result`, {
+        const response2 = await fetch(`${this.serverUrl}/api/save-result`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -322,9 +316,9 @@ export class Game {
           body: JSON.stringify(gameData),
         })
 
-        const result = await response.json()
+        const result2 = await response.json()
 
-        if (result.success) {
+        if (result2.success) {
           statusMessage.textContent = "Result saved successfully!"
           statusMessage.className = "success-message"
 
