@@ -288,6 +288,7 @@ export class Game {
           playerName: player1Name,
           playerScore: this.score.playerScore,
           winner: this.score.playerScore > this.score.aiScore ? player1Name : player2Name,
+          difficulty: document.querySelector(".difficulty-btn.active").id
         }
         const response1 = await fetch(`${this.serverUrl}/api/save-result`, {
           method: "POST",
@@ -297,7 +298,7 @@ export class Game {
           body: JSON.stringify(gameData),
         })
 
-        const result1 = await response.json()
+        const result1 = await response1.json()
 
         if (!result1.success) {
           throw new Error(result.error || "Failed to save result")
@@ -307,6 +308,7 @@ export class Game {
           playerName: player2Name,
           playerScore: this.score.aiScore,
           winner: this.score.playerScore > this.score.aiScore ? player1Name : player2Name,
+          difficulty: document.querySelector(".difficulty-btn.active").id
         }
         const response2 = await fetch(`${this.serverUrl}/api/save-result`, {
           method: "POST",

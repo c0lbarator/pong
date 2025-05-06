@@ -54,15 +54,15 @@ export class Leaderboard {
                 row.innerHTML = `
                 <td>${index + 1}</td>
                 <td>${result.playerName}</td>
-                <td>${result.playerScore} - ${result.computerScore}</td>
+                <td>${result.playerScore}</td>
                 <td>${result.difficulty}</td>
                 <td>${formattedDate}</td>
                 `
             } else {
                 row.innerHTML = `
                 <td>${index + 1}</td>
-                <td>${result.player1Name} vs ${result.player2Name}</td>
-                <td>${result.player1Score} - ${result.player2Score}</td>
+                <td>${result.playerName}</td>
+                <td>${result.playerScore}</td>
                 <td>${result.winner}</td>
                 <td>${formattedDate}</td>
                 `
