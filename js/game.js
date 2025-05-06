@@ -41,7 +41,7 @@ export class Game {
     }
 
     // Set up event listener for the save result form
-    document.getElementById("save-result-button").addEventListener("submit", this.saveGameResult)
+    document.getElementById("save-result-button").addEventListener("click", this.saveGameResult)
   }
 
   setTwoPlayerMode(enabled) {
