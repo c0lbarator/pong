@@ -132,30 +132,43 @@ async function requestHandler(req: Request): Promise<Response> {
     const filePath = pathname === '/' ? './index.html' : `.${pathname}`;
 
     try {
-        // Проверяем существует ли файл и является ли он файлом (а не директорией)
         const fileInfo = await Deno.stat(filePath);
 
         if (fileInfo.isFile) {
-            // Если это файл, читаем его содержимое
             const fileContent = await Deno.readFile(filePath);
 
             // Определяем Content-Type на основе расширения файла
-            // Используем встроенную функцию lookup из std/media_types для надежности
-            const content_type = contentType(filePath) || 'application/octet-stream'; // По умолчанию, если тип неизвестен
+            const mimeType = contentType(filePath) || 'application/octet-stream';
 
-            // Отдаем файл клиенту с правильным Content-Type и статусом 200
+            // Создаем объект заголовков
+            const headers: HeadersInit = {
+                "Content-Type": mimeType,
+                ...CORS_HEADERS,
+                "Cache-Control": "public, max-age=3600", // Добавьте кеширование, если нужно
+            };
+
+            // --- Добавляем Content-Disposition: inline для типов, которые браузер должен отображать ---
+            // Если тип контента - HTML (или другие типы, которые вы хотите отображать, например CSS, JS, изображения),
+            // явно установим Content-Disposition в "inline".
+            if (mimeType && (mimeType.startsWith('text/') || mimeType.startsWith('image/') || mimeType === 'application/javascript')) {
+                headers["Content-Disposition"] = "inline";
+            }
+            // Для других типов (вроде архивов, PDF и т.п.) можно опционально добавить заголовок "attachment",
+            // чтобы браузер предлагал скачать файл с правильным именем.
+            // else {
+            //     // Извлекаем имя файла из пути для использования в "attachment"
+            //     const fileName = filePath.split('/').pop(); // Получаем последнюю часть пути
+            //     if (fileName) {
+            //        headers["Content-Disposition"] = `attachment; filename="${fileName}"`;
+            //     }
+            // }
+
+            // Отдаем файл клиенту с правильными заголовками
             return new Response(fileContent, {
                 status: 200,
-                headers: {
-                    "Content-Type": content_type,
-                    // Также добавляем заголовки CORS и потенциально Cache-Control для статики
-                    ...CORS_HEADERS,
-                    "Cache-Control": "public, max-age=3600", // Кэшировать статику на 1 час
-                },
+                headers: headers, // Используем созданный выше объект заголовков
             });
         }
-        // Если путь существует, но это не файл (например, директория),
-        // то переходим к проверке API роутов.
     } catch (error: any) {
         // Если произошла ошибка Deno.errors.NotFound, это означает, что файл не найден.
         // Это ожидаемое поведение для путей, которые не ведут к статическим файлам.
