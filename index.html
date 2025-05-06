@@ -27,7 +27,10 @@
               <button id="hard" class="difficulty-btn">Hard</button>
             </div>
           </div>
-          <button id="start-button">Start Game</button>
+          <div class="menu-buttons">
+            <button id="start-button">Start Game</button>
+            <a href="leaderboard.html" id="leaderboard-page-link">View Leaderboard</a>
+          </div>
         </div>
         <div id="game-overlay">
           <div id="score-container">
@@ -58,7 +61,7 @@
 
             <div class="button-group">
               <button id="save-result-button">Save Result</button>
-              <button id="view-leaderboard-button" class="hidden">View Leaderboard</button>
+              <a href="leaderboard.html" id="view-leaderboard-button" class="hidden">View Leaderboard</a>
               <button id="restart-button">Play Again</button>
             </div>
           </div>
@@ -74,29 +77,6 @@
         </div>
       </div>
 
-      <!-- Leaderboard -->
-      <div id="leaderboard" class="hidden">
-        <div class="leaderboard-container">
-          <div class="leaderboard-header">
-            <h2>Leaderboard</h2>
-            <button id="close-leaderboard">&times;</button>
-          </div>
-          <table class="leaderboard-table">
-            <thead>
-              <tr>
-                <th>Rank</th>
-                <th>Player(s)</th>
-                <th>Score</th>
-                <th>Winner/Difficulty</th>
-                <th>Date & Time</th>
-              </tr>
-            </thead>
-            <tbody id="leaderboard-table-body">
-              <!-- Leaderboard data will be inserted here -->
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
     <script type="module" src="/main.js"></script>
   </body>

@@ -341,3 +341,26 @@ cursor: pointer;
   text-align: center;
   padding: 20px;
 }
+
+.menu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+#leaderboard-page-link {
+background-color: #ff9800;
+color: white;
+border: none;
+padding: 10px 15px;
+border-radius: 4px;
+cursor: pointer;
+text-decoration: none;
+text-align: center;
+font-weight: bold;
+}
+
+#leaderboard-page-link:hover {
+background-color: #e68a00;
+}
