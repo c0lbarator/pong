@@ -115,36 +115,90 @@ async function handleGetLeaderboard(): Promise<Response> {
 async function requestHandler(req: Request): Promise<Response> {
     const url = new URL(req.url);
     const method = req.method;
-    const pathname = url.pathname;
+    let pathname = url.pathname; // Используем let, так как можем захотеть его изменить (например, для / -> /index.html)
 
-    // Сначала обрабатываем preflight OPTIONS запросы для CORS
+    // Обрабатываем preflight OPTIONS запросы для CORS
     if (method === "OPTIONS") {
         return new Response(null, { headers: CORS_HEADERS });
     }
 
-    // Логика маршрутизации: определяем, какой обработчик вызвать
+    // --- 1. Попытка отдать статический файл ---
+
+    // Определяем путь к файлу в локальной файловой системе.
+    // Если путь "/", отдаем "./index.html". Иначе отдаем файл по пути, начинающемуся с "."
+    // Например, "/script.js" -> "./script.js", "/css/style.css" -> "./css/style.css"
+    const filePath = pathname === '/' ? './index.html' : `.${pathname}`;
+
+    try {
+        // Проверяем существует ли файл и является ли он файлом (а не директорией)
+        const fileInfo = await Deno.stat(filePath);
+
+        if (fileInfo.isFile) {
+            // Если это файл, читаем его содержимое
+            const fileContent = await Deno.readFile(filePath);
+
+            // Определяем Content-Type на основе расширения файла
+            // Используем встроенную функцию lookup из std/media_types для надежности
+            const contentType = lookup(filePath) || 'application/octet-stream'; // По умолчанию, если тип неизвестен
+
+            // Отдаем файл клиенту с правильным Content-Type и статусом 200
+            return new Response(fileContent, {
+                status: 200,
+                headers: {
+                    "Content-Type": contentType,
+                    // Также добавляем заголовки CORS и потенциально Cache-Control для статики
+                    ...CORS_HEADERS,
+                    "Cache-Control": "public, max-age=3600", // Кэшировать статику на 1 час
+                },
+            });
+        }
+        // Если путь существует, но это не файл (например, директория),
+        // то переходим к проверке API роутов.
+    } catch (error: any) {
+        // Если произошла ошибка Deno.errors.NotFound, это означает, что файл не найден.
+        // Это ожидаемое поведение для путей, которые не ведут к статическим файлам.
+        // Просто игнорируем эту ошибку и переходим к проверке API роутов.
+        if (error instanceof Deno.errors.NotFound) {
+            // Файл не найден, продолжаем обработку запроса
+        } else {
+            // Если произошла другая ошибка при доступе к файлу (например, разрешения),
+            // логируем её. Можно вернуть 500 ошибку здесь, но для простоты,
+            // оставшаяся часть хендлера вернет 404, если ничего не совпадет.
+            console.error(`Error accessing static file "${filePath}":`, error);
+            // Если это не NotFound, и мы не хотим возвращать 404,
+            // можно вернуть ошибку сервера:
+            // return errorResponse(`Failed to read file ${pathname}`, 500);
+            // Но для данного сценария, если файл не отдался, скорее всего это 404.
+        }
+    }
+
+    // --- 2. Проверка API роутов (Ваша существующая логика) ---
+    // Если статический файл не был отдан, проверяем API роуты
     switch (pathname) {
         case "/api/save-result":
             if (method === "POST") {
                 return handleSaveResult(req);
             }
-            break; // Если метод не POST, переходим к 404
+            // Если метод не POST, то это не совпадение, переходим к 404
+            break;
 
         case "/api/leaderboard":
             if (method === "GET") {
                 return handleGetLeaderboard();
             }
-            break; // Если метод не GET, переходим к 404
+            // Если метод не GET, то это не совпадение, переходим к 404
+            break;
 
             // Добавьте сюда другие маршруты, если они появятся
             // case "/api/another-route": ...
 
+            // Нет нужды явно указывать case "" или case "/" здесь,
+            // так как они обрабатываются логикой статических файлов выше.
     }
 
-    // Если ни один маршрут не подошел или метод не совпал - возвращаем 404 Not Found
+    // --- 3. Если ни один маршрут не подошел - возвращаем 404 Not Found ---
     return new Response("Not Found", { status: 404 });
 }
-
 // Запускаем сервер Deno, используя функцию requestHandler как входную точку для каждого запроса.
 console.log("Deno KV Leaderboard Server running on http://localhost:8000");
 Deno.serve(requestHandler); // Указываем порт явно, хотя Deno Deploy его проигнорирует и использует свой.

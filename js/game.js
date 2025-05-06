@@ -11,7 +11,7 @@ export class Game {
     this.isPaused = false
     this.winScore = 30
     this.isTwoPlayerMode = false
-    this.serverUrl = "http://localhost:8000" // Update this with your Deno server URL
+    this.serverUrl = "" // Update this with your Deno server URL
 
     this.resize()
 
