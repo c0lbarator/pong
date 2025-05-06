@@ -316,7 +316,7 @@ export class Game {
           body: JSON.stringify(gameData),
         })
 
-        const result2 = await response.json()
+        const result2 = await response2.json()
 
         if (result2.success) {
           statusMessage.textContent = "Result saved successfully!"
