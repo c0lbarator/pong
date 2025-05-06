@@ -17,6 +17,9 @@
   padding: 0;
   box-sizing: border-box;
 }
+.a-link {
+  text-decoration: none;
+}
 
 body {
   background-color: var(--background-color);

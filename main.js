@@ -2,7 +2,6 @@ import { Game } from "/js/game.js"
 
 document.addEventListener("DOMContentLoaded", () => {
   const game = new Game()
-  const leaderboard = new Leaderboard()
 
   const singlePlayerBtn = document.getElementById("single-player")
   const twoPlayerBtn = document.getElementById("two-player")
