@@ -1,5 +1,5 @@
 export class Leaderboard {
-    constructor(serverUrl = "http://localhost:8000") {
+    constructor(serverUrl = "") {
         this.serverUrl = serverUrl
         this.leaderboardElement = document.getElementById("leaderboard")
         this.leaderboardTableBody = document.getElementById("leaderboard-table-body")
