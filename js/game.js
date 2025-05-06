@@ -285,43 +285,84 @@ export class Game {
 
         gameData = {
           gameMode: "2 Players",
-          player1Name,
-          player2Name,
-          player1Score: this.score.playerScore,
-          player2Score: this.score.aiScore,
+          playerName: player1Name,
+          playerScore: this.score.playerScore,
           winner: this.score.playerScore > this.score.aiScore ? player1Name : player2Name,
+        }
+        const response = await fetch(`${this.serverUrl}/api/save-result`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(gameData),
+        })
+
+        const result = await response.json()
+
+        if (result.success) {
+          statusMessage.textContent = "Result saved successfully!"
+          statusMessage.className = "success-message"
+
+          // Show the leaderboard button
+          document.getElementById("view-leaderboard-button").classList.remove("hidden")
+        } else {
+          throw new Error(result.error || "Failed to save result")
+        }
+        gameData = {
+          gameMode: "2 Players",
+          playerName: player2Name,
+          playerScore: this.score.aiScore,
+          winner: this.score.playerScore > this.score.aiScore ? player1Name : player2Name,
+        }
+        const response = await fetch(`${this.serverUrl}/api/save-result`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(gameData),
+        })
+
+        const result = await response.json()
+
+        if (result.success) {
+          statusMessage.textContent = "Result saved successfully!"
+          statusMessage.className = "success-message"
+
+          // Show the leaderboard button
+          document.getElementById("view-leaderboard-button").classList.remove("hidden")
+        } else {
+          throw new Error(result.error || "Failed to save result")
         }
       } else {
         const playerName = document.getElementById("single-player-name").value || "Player"
 
         gameData = {
           gameMode: "1 Player",
-          playerName,
+          playerName: playerName,
           playerScore: this.score.playerScore,
           computerScore: this.score.aiScore,
           winner: this.score.playerScore > this.score.aiScore ? playerName : "Computer",
           difficulty: document.querySelector(".difficulty-btn.active").id,
         }
-      }
+        const response = await fetch(`${this.serverUrl}/api/save-result`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(gameData),
+        })
 
-      const response = await fetch(`${this.serverUrl}/api/save-result`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(gameData),
-      })
+        const result = await response.json()
 
-      const result = await response.json()
+        if (result.success) {
+          statusMessage.textContent = "Result saved successfully!"
+          statusMessage.className = "success-message"
 
-      if (result.success) {
-        statusMessage.textContent = "Result saved successfully!"
-        statusMessage.className = "success-message"
-
-        // Show the leaderboard button
-        document.getElementById("view-leaderboard-button").classList.remove("hidden")
-      } else {
-        throw new Error(result.error || "Failed to save result")
+          // Show the leaderboard button
+          document.getElementById("view-leaderboard-button").classList.remove("hidden")
+        } else {
+          throw new Error(result.error || "Failed to save result")
+        }
       }
     } catch (error) {
       console.error("Error saving game result:", error)
