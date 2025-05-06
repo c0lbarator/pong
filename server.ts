@@ -2,6 +2,8 @@
 
 // Открываем KV хранилище один раз при старте сервера
 // Это важно делать вне обработчика requestHandler, чтобы избежать повторного открытия для каждого запроса.
+import { extname } from "https://deno.land/std@0.224.0/path/extname.ts";
+import { lookup } from "https://deno.land/std@0.224.0/media_types/lookup.ts"; // <--- Эта строка важна!
 const kv = await Deno.openKv();
 
 // Централизованные заголовки для CORS
