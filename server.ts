@@ -1,6 +1,6 @@
 // Deno KV server for Pong leaderboard API and static file serving
 
-import { serveFile } from "@std/http/file-server"; // <--- ДОБАВЛЕНО
+import { serveFile } from "jsr:@std/http/file-server";// <--- ДОБАВЛЕНО
 
 // Открываем KV хранилище один раз при старте сервера
 const kv = await Deno.openKv();
