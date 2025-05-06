@@ -71,16 +71,16 @@ document.addEventListener("DOMContentLoaded", () => {
             switch (currentSort.column) {
                 case "rank":
                     // Default sort by score (highest first)
-                    valueA = a.gameMode === "1 Player" ? a.playerScore : a.player1Score
-                    valueB = b.gameMode === "1 Player" ? b.playerScore : b.player1Score
+                    valueA = a.gameMode === "1 Player" ? a.playerScore : a.playerScore
+                    valueB = b.gameMode === "1 Player" ? b.playerScore : b.playerScore
                     break
                 case "player":
-                    valueA = a.gameMode === "1 Player" ? a.playerName : a.player1Name
-                    valueB = b.gameMode === "1 Player" ? b.playerName : b.player1Name
+                    valueA = a.gameMode === "1 Player" ? a.playerName : a.playerName
+                    valueB = b.gameMode === "1 Player" ? b.playerName : b.playerName
                     break
                 case "score":
-                    valueA = a.gameMode === "1 Player" ? a.playerScore : a.player1Score
-                    valueB = b.gameMode === "1 Player" ? b.playerScore : b.player1Score
+                    valueA = a.gameMode === "1 Player" ? a.playerScore : a.playerScore
+                    valueB = b.gameMode === "1 Player" ? b.playerScore : b.playerScore
                     break
                 case "winner":
                     valueA = a.winner || a.difficulty || ""
@@ -129,17 +129,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 row.innerHTML = `
                 <td>${index + 1}</td>
                 <td>${result.playerName}</td>
-                <td>${result.playerScore} - ${result.computerScore}</td>
-                <td>${isWinner ? `<span class="winner">${result.playerName}</span>` : "Computer"} (${result.difficulty})</td>
+                <td>${result.playerScore}</td>
+                <td>${result.winner} (${result.difficulty})</td>
                 <td>${formattedDate}</td>
                 `
             } else {
-                const isPlayer1Winner = result.winner === result.player1Name
-
                 row.innerHTML = `
                 <td>${index + 1}</td>
-                <td>${result.player1Name} vs ${result.player2Name}</td>
-                <td>${result.player1Score} - ${result.player2Score}</td>
+                <td>${result.playerName}</td>
+                <td>${result.playerScore}</td>
                 <td><span class="winner">${result.winner}</span></td>
                 <td>${formattedDate}</td>
                 `
