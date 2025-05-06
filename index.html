@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Atari Pong</title>
+  </head>
+  <body>
+    <div id="app">
+      <div id="game-container">
+        <div id="menu">
+          <h1>PONG</h1>
+          <div class="mode-container">
+            <h2>Game Mode</h2>
+            <div class="mode-buttons">
+              <button id="single-player" class="mode-btn active">1 Player</button>
+              <button id="two-player" class="mode-btn">2 Players</button>
+            </div>
+          </div>
+          <div class="difficulty-container">
+            <h2>Select Difficulty</h2>
+            <div class="difficulty-buttons">
+              <button id="easy" class="difficulty-btn active">Easy</button>
+              <button id="medium" class="difficulty-btn">Medium</button>
+              <button id="hard" class="difficulty-btn">Hard</button>
+            </div>
+          </div>
+          <button id="start-button">Start Game</button>
+        </div>
+        <div id="game-overlay">
+          <div id="score-container">
+            <div id="player-score">0</div>
+            <div id="ai-score">0</div>
+          </div>
+          <div id="game-end" class="hidden">
+            <h2 id="winner-text"></h2>
+            <button id="restart-button">Play Again</button>
+          </div>
+          <div id="pause-menu" class="hidden">
+            <h2>Game Paused</h2>
+            <button id="resume-button">Resume</button>
+            <button id="quit-button">Quit</button>
+          </div>
+        </div>
+        <canvas id="game-canvas"></canvas>
+        <div id="controls">
+          <p>Press ESC to pause | Player 1: Arrow keys | Player 2: W/S keys</p>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
