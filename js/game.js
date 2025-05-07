@@ -12,7 +12,13 @@ export class Game {
     this.winScore = 30
     this.isTwoPlayerMode = false
     this.serverUrl = "" // Update this with your Deno server URL
-
+    this.isMobileDevice = this.checkMobileDevice()
+    this.touchControls = {
+      player1TouchId: null,
+      player2TouchId: null,
+      player1LastY: 0,
+      player2LastY: 0,
+    }
     this.resize()
 
     this.ball = new Ball(this.canvas.width / 2, this.canvas.height / 2)
@@ -28,11 +34,21 @@ export class Game {
     this.handleKeyup = this.handleKeyup.bind(this)
     this.resize = this.resize.bind(this)
     this.saveGameResult = this.saveGameResult.bind(this)
-
+    this.handleTouchStart = this.handleTouchStart.bind(this)
+    this.handleTouchMove = this.handleTouchMove.bind(this)
+    this.handleTouchEnd = this.handleTouchEnd.bind(this)
+    this.togglePause = this.togglePause.bind(this)
     window.addEventListener("keydown", this.handleKeydown)
     window.addEventListener("keyup", this.handleKeyup)
     window.addEventListener("resize", this.resize)
+    // Add touch event listeners
+    this.canvas.addEventListener("touchstart", this.handleTouchStart, { passive: false })
+    this.canvas.addEventListener("touchmove", this.handleTouchMove, { passive: false })
+    this.canvas.addEventListener("touchend", this.handleTouchEnd)
+    this.canvas.addEventListener("touchcancel", this.handleTouchEnd)
 
+    // Add pause button touch event
+    document.getElementById("mobile-pause-btn").addEventListener("click", this.togglePause)
     this.keys = {
       ArrowUp: false,
       ArrowDown: false,
@@ -42,6 +58,114 @@ export class Game {
 
     // Set up event listener for the save result form
     document.getElementById("save-result-button").addEventListener("click", this.saveGameResult)
+    // Show/hide mobile controls based on device
+    this.setupMobileControls()
+  }
+
+  checkMobileDevice() {
+    return (
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+      (window.matchMedia && window.matchMedia("(max-width: 768px)").matches)
+    )
+  }
+
+  setupMobileControls() {
+    const mobileControls = document.getElementById("mobile-controls")
+    if (this.isMobileDevice) {
+      mobileControls.classList.remove("hidden")
+      document.getElementById("controls").classList.add("hidden")
+    } else {
+      mobileControls.classList.add("hidden")
+      document.getElementById("controls").classList.remove("hidden")
+    }
+  }
+
+  togglePause() {
+    if (this.isPaused) {
+      document.getElementById("pause-menu").classList.add("hidden")
+      this.resume()
+    } else {
+      this.pause()
+    }
+  }
+
+  handleTouchStart(e) {
+    e.preventDefault()
+
+    if (!this.isRunning || this.isPaused) return
+
+      const canvasRect = this.canvas.getBoundingClientRect()
+      const canvasMidpoint = canvasRect.left + canvasRect.width / 2
+
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        const touch = e.changedTouches[i]
+        const touchX = touch.clientX
+        const touchY = touch.clientY - canvasRect.top
+
+        // Determine which side of the screen was touched
+        if (touchX < canvasMidpoint) {
+          // Left side - Player 1
+          if (this.touchControls.player1TouchId === null) {
+            this.touchControls.player1TouchId = touch.identifier
+            this.touchControls.player1LastY = touchY
+            this.movePaddleToPosition(this.playerPaddle, touchY)
+          }
+        } else {
+          // Right side - Player 2 (or AI in single player)
+          if (this.isTwoPlayerMode && this.touchControls.player2TouchId === null) {
+            this.touchControls.player2TouchId = touch.identifier
+            this.touchControls.player2LastY = touchY
+            this.movePaddleToPosition(this.aiPaddle, touchY)
+          }
+        }
+      }
+  }
+
+  handleTouchMove(e) {
+    e.preventDefault()
+
+    if (!this.isRunning || this.isPaused) return
+
+      const canvasRect = this.canvas.getBoundingClientRect()
+
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        const touch = e.changedTouches[i]
+        const touchY = touch.clientY - canvasRect.top
+
+        // Check if this touch is the one we're tracking for player 1
+        if (touch.identifier === this.touchControls.player1TouchId) {
+          this.touchControls.player1LastY = touchY
+          this.movePaddleToPosition(this.playerPaddle, touchY)
+        }
+        // Check if this touch is the one we're tracking for player 2
+        else if (this.isTwoPlayerMode && touch.identifier === this.touchControls.player2TouchId) {
+          this.touchControls.player2LastY = touchY
+          this.movePaddleToPosition(this.aiPaddle, touchY)
+        }
+      }
+  }
+
+  handleTouchEnd(e) {
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const touch = e.changedTouches[i]
+
+      // Check if this is the touch we're tracking for player 1
+      if (touch.identifier === this.touchControls.player1TouchId) {
+        this.touchControls.player1TouchId = null
+      }
+      // Check if this is the touch we're tracking for player 2
+      else if (touch.identifier === this.touchControls.player2TouchId) {
+        this.touchControls.player2TouchId = null
+      }
+    }
+  }
+
+  movePaddleToPosition(paddle, touchY) {
+    // Calculate the center position of the paddle
+    const paddleCenter = paddle.height / 2
+
+    // Set the paddle's y position, ensuring it stays within the canvas bounds
+    paddle.y = Math.max(0, Math.min(this.canvas.height - paddle.height, touchY - paddleCenter))
   }
 
   setTwoPlayerMode(enabled) {
@@ -54,12 +178,7 @@ export class Game {
     }
 
     if (e.key === "Escape" && this.isRunning) {
-      if (this.isPaused) {
-        document.getElementById("pause-menu").classList.add("hidden")
-        this.resume()
-      } else {
-        this.pause()
-      }
+      this.togglePause()
     }
   }
 
@@ -78,6 +197,9 @@ export class Game {
       this.playerPaddle.x = 30
       this.aiPaddle.x = this.canvas.width - 30 - this.aiPaddle.width
     }
+    // Check if device is mobile after resize
+    this.isMobileDevice = this.checkMobileDevice()
+    this.setupMobileControls()
   }
 
   checkCollisions() {
@@ -155,8 +277,26 @@ export class Game {
     this.ball.render(this.ctx)
     this.playerPaddle.render(this.ctx)
     this.aiPaddle.render(this.ctx)
+    // Render touch areas for mobile
+    if (this.isMobileDevice && this.isRunning && !this.isPaused) {
+      this.renderTouchAreas()
+    }
   }
 
+  renderTouchAreas() {
+    // Draw semi-transparent touch areas
+    const halfWidth = this.canvas.width / 2
+
+    // Left side - Player 1
+    this.ctx.fillStyle = "rgba(0, 100, 255, 0.1)"
+    this.ctx.fillRect(0, 0, halfWidth, this.canvas.height)
+
+    // Right side - Player 2 or AI
+    if (this.isTwoPlayerMode) {
+      this.ctx.fillStyle = "rgba(255, 100, 0, 0.1)"
+      this.ctx.fillRect(halfWidth, 0, halfWidth, this.canvas.height)
+    }
+  }
   start() {
     if (!this.isRunning) {
       this.isRunning = true

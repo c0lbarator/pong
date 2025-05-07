@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const restartButton = document.getElementById("restart-button")
   const resumeButton = document.getElementById("resume-button")
   const quitButton = document.getElementById("quit-button")
-
+  const mobileInstructions = document.querySelector(".mobile-instructions")
   singlePlayerBtn.addEventListener("click", () => {
     document.querySelectorAll(".mode-btn").forEach((btn) => btn.classList.remove("active"))
     singlePlayerBtn.classList.add("active")
@@ -29,7 +29,12 @@ document.addEventListener("DOMContentLoaded", () => {
     game.reset()
     game.start()
   })
-
+  if (game.isMobileDevice) {
+    mobileInstructions.classList.add("visible")
+    setTimeout(() => {
+      mobileInstructions.classList.remove("visible")
+    }, 3000)
+  }
   restartButton.addEventListener("click", () => {
     document.getElementById("game-end").classList.add("hidden")
     document.getElementById("player-name-form").classList.add("hidden")
@@ -48,5 +53,12 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("pause-menu").classList.add("hidden")
     document.getElementById("menu").classList.remove("hidden")
     game.isRunning = false
+  })
+  // Set up difficulty buttons
+  document.querySelectorAll(".difficulty-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".difficulty-btn").forEach((b) => b.classList.remove("active"))
+      btn.classList.add("active")
+    })
   })
 })

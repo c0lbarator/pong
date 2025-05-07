@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Pong - Leaderboard</title>
   <style>
     .a-link {
@@ -28,6 +28,7 @@
       padding: 0;
       background-color: #000;
       color: #fff;
+      touch-action: manipulation;
     }
 
     .container {
@@ -193,6 +194,27 @@
       background-color: var(--primary-color);
       color: var(--background-color);
       box-shadow: 0 0 10px var(--glow-color);
+    }
+    h1 {
+      font-size: 24px;
+    }
+
+    .leaderboard-header h2 {
+      font-size: 20px;
+    }
+
+    .container {
+      padding: 10px;
+    }
+
+    /* Make table scrollable horizontally on mobile */
+    .leaderboard-container {
+      padding: 10px;
+      overflow-x: auto;
+    }
+
+    .leaderboard-table {
+      min-width: 600px;
     }
   </style>
 </head>

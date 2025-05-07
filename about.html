@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Pong - Об игре</title>
   <style>
     .a-link {
@@ -29,6 +29,7 @@
       background-color: #000;
       color: #fff;
       line-height: 1.6;
+      touch-action: manipulation;
     }
 
     .container {
@@ -193,6 +194,20 @@
       color: var(--background-color);
       box-shadow: 0 0 10px var(--glow-color);
     }
+
+    /* Make table scrollable horizontally on mobile */
+    .controls-table-container {
+      overflow-x: auto;
+    }
+
+    .controls-table {
+      min-width: 500px;
+    }
+
+    /* Show touch controls section on mobile */
+    .touch-controls-section {
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -234,42 +249,55 @@
       </p>
 
       <h3>Управление</h3>
-      <table class="controls-table">
-        <thead>
-          <tr>
-            <th>Игрок</th>
-            <th>Клавиши</th>
-            <th>Действие</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Игрок 1 (Левый)</td>
-            <td>Клавиша W</td>
-            <td>Перемещение ракетки вверх</td>
-          </tr>
-          <tr>
-            <td>Игрок 1 (Левый)</td>
-            <td>Клавиша S</td>
-            <td>Перемещение ракетки вниз</td>
-          </tr>
-          <tr>
-            <td>Игрок 2 (Правый)</td>
-            <td>Стрелка вверх</td>
-            <td>Перемещение ракетки вверх</td>
-          </tr>
-          <tr>
-            <td>Игрок 2 (Правый)</td>
-            <td>Стрелка вниз</td>
-            <td>Перемещение ракетки вниз</td>
-          </tr>
-          <tr>
-            <td>Общее</td>
-            <td>Клавиша ESC</td>
-            <td>Пауза</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="controls-table-container">
+        <table class="controls-table">
+          <thead>
+            <tr>
+              <th>Игрок</th>
+              <th>Клавиши</th>
+              <th>Действие</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Игрок 1 (Левый)</td>
+              <td>Клавиша W</td>
+              <td>Перемещение ракетки вверх</td>
+            </tr>
+            <tr>
+              <td>Игрок 1 (Левый)</td>
+              <td>Клавиша S</td>
+              <td>Перемещение ракетки вниз</td>
+            </tr>
+            <tr>
+              <td>Игрок 2 (Правый)</td>
+              <td>Стрелка вверх</td>
+              <td>Перемещение ракетки вверх</td>
+            </tr>
+            <tr>
+              <td>Игрок 2 (Правый)</td>
+              <td>Стрелка вниз</td>
+              <td>Перемещение ракетки вниз</td>
+            </tr>
+            <tr>
+              <td>Общее</td>
+              <td>Клавиша ESC</td>
+              <td>Пауза</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="touch-controls-section">
+        <h3>Сенсорное управление (для мобильных устройств)</h3>
+        <p>
+          <strong>Игрок 1:</strong> Проведите пальцем по левой стороне экрана, чтобы перемещать левую ракетку.
+          <br>
+          <strong>Игрок 2:</strong> Проведите пальцем по правой стороне экрана, чтобы перемещать правую ракетку.
+          <br>
+          <strong>Пауза:</strong> Нажмите кнопку "PAUSE" в нижней части экрана.
+        </p>
+      </div>
 
       <h3>Подсчёт очков</h3>
       <p>
@@ -288,6 +316,7 @@
         <li>Звуковые эффекты для ударов мяча и столкновений со стенами</li>
         <li>Адаптивный дизайн, работающий на различных размерах экранов</li>
         <li>Постоянная система таблицы лидеров с использованием хранилища Deno KV</li>
+        <li>Сенсорное управление для мобильных устройств</li>
         <li>Отслеживание игровой статистики</li>
         <li>Функция паузы</li>
       </ul>
@@ -305,6 +334,7 @@
         <li>Web Audio API для звуковых эффектов</li>
         <li>Deno и Deno KV для серверного хранения результатов игр</li>
         <li>Модульная архитектура кода с отдельными классами для игровых компонентов</li>
+        <li>Touch Events API для поддержки сенсорных экранов</li>
       </ul>
     </div>
 
