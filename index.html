@@ -1,93 +1,679 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/public/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <link rel="stylesheet" href="/style.css">
-    <title>Atari Pong</title>
-  </head>
-  <body>
-    <div id="app">
-      <div id="game-container">
-        <div id="menu">
-          <h1>PONG</h1>
-          <div class="mode-container">
-            <h2>Game Mode</h2>
-            <div class="mode-buttons">
-              <button id="single-player" class="mode-btn active">1 Player</button>
-              <button id="two-player" class="mode-btn">2 Players</button>
-            </div>
-          </div>
-          <div class="difficulty-container">
-            <h2>Select Difficulty</h2>
-            <div class="difficulty-buttons">
-              <button id="easy" class="difficulty-btn active">Easy</button>
-              <button id="medium" class="difficulty-btn">Medium</button>
-              <button id="hard" class="difficulty-btn">Hard</button>
-            </div>
-          </div>
-          <button id="start-button">Start Game</button>
-          <div class="menu-buttons">
-            <a href="leaderboard.html" id="start-button" class="a-link">Leaderboard</a>
-            <a href="about.html" id="start-button" class="a-link">Об игре</a>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Atari Pong</title>
+  <style>
+    :root {
+      --primary-color: #fff;
+      --glow-color: rgba(255, 255, 255, 0.8);
+      --background-color: #000;
+      --accent-color: #00f3ff;
+      --secondary-color: #ff0077;
+      --overlay-color: rgba(0, 0, 0, 0.8);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      touch-action: manipulation;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--background-color);
+      color: var(--primary-color);
+      display: flex;
+      place-items: center;
+      justify-content: center;
+      min-width: 320px;
+      min-height: 100vh;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Add styles for the player name form and leaderboard */
+    .hidden {
+      display: none !important;
+    }
+
+    #player-name-form {
+      margin-top: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    /* Common button styles */
+    .btn {
+      display: inline-block;
+      min-width: 200px;
+      padding: 10px 15px;
+      border: 2px solid var(--primary-color);
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      background-color: transparent;
+      color: var(--primary-color);
+    }
+
+    .btn:hover {
+      background-color: var(--primary-color);
+      color: var(--background-color);
+      box-shadow: 0 0 10px var(--glow-color);
+    }
+
+    /* Primary button (green) */
+    .btn-primary {
+      border-color: #4CAF50;
+      color: #4CAF50;
+    }
+
+    .btn-primary:hover {
+      background-color: #4CAF50;
+      color: white;
+      box-shadow: 0 0 15px rgba(76, 175, 80, 0.8);
+    }
+
+    .btn-primary:disabled {
+      background-color: transparent;
+      border-color: #cccccc;
+      color: #cccccc;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Secondary button (blue) */
+    .btn-secondary {
+      border-color: #2196F3;
+      color: #2196F3;
+    }
+
+    .btn-secondary:hover {
+      background-color: #2196F3;
+      color: white;
+      box-shadow: 0 0 15px rgba(33, 150, 243, 0.8);
+    }
+
+    /* Orange button */
+    .btn-orange {
+      border-color: #ff9800;
+      color: #ff9800;
+    }
+
+    .btn-orange:hover {
+      background-color: #ff9800;
+      color: white;
+      box-shadow: 0 0 15px rgba(255, 152, 0, 0.8);
+    }
+
+    /* Purple button */
+    .btn-purple {
+      border-color: #9c27b0;
+      color: #9c27b0;
+    }
+
+    .btn-purple:hover {
+      background-color: #9c27b0;
+      color: white;
+      box-shadow: 0 0 15px rgba(156, 39, 176, 0.8);
+    }
+
+    /* Apply button styles to specific elements */
+    #save-result-button {
+      margin-top: 10px;
+    }
+
+    #view-leaderboard-button {
+      margin-top: 10px;
+    }
+
+    #save-status {
+      margin-top: 10px;
+    }
+
+    .success-message {
+      color: #4CAF50;
+    }
+
+    .error-message {
+      color: #f44336;
+    }
+
+    #leaderboard {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .leaderboard-container {
+      background-color: #222;
+      border-radius: 8px;
+      padding: 20px;
+      width: 80%;
+      max-width: 800px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .leaderboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .leaderboard-table th,
+    .leaderboard-table td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #444;
+    }
+
+    .leaderboard-table th {
+      background-color: #333;
+    }
+
+    #close-leaderboard {
+      background-color: transparent;
+      color: white;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .loading, .no-results {
+      text-align: center;
+      padding: 20px;
+    }
+
+    /* Styles for the menu buttons */
+    .menu-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+      width: 100%;
+      max-width: 200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Game mode and difficulty buttons */
+    .mode-buttons,
+    .difficulty-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .mode-btn,
+    .difficulty-btn {
+      min-width: 100px;
+      padding: 8px 15px;
+      font-size: 16px;
+      background-color: transparent;
+      color: var(--primary-color);
+      border: 1px solid var(--primary-color);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .mode-btn:hover,
+    .difficulty-btn:hover {
+      background-color: var(--primary-color);
+      color: var(--background-color);
+    }
+
+    .mode-btn.active,
+    .difficulty-btn.active {
+      background-color: var(--primary-color);
+      color: var(--background-color);
+      box-shadow: 0 0 10px var(--glow-color);
+    }
+
+    /* Button group in game end screen */
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    /* Pause menu buttons */
+    #pause-menu {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    #pause-menu button {
+      margin-top: 15px;
+      min-width: 200px;
+    }
+
+    /* Mobile controls */
+    #mobile-controls {
+      position: fixed;
+      bottom: 20px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    #mobile-pause-btn,
+    #mobile-fullscreen-btn {
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: 2px solid white;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    /* Mobile instructions */
+    .mobile-instructions {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(-50%);
+      transition: opacity 0.5s ease;
+    }
+
+    .mobile-instructions.visible {
+      opacity: 1;
+    }
+
+    /* Paddle speed selector */
+    .paddle-speed-container {
+      margin: 1.5rem 0;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .paddle-speed-container h2 {
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      text-align: center;
+    }
+
+    /* Slider styles */
+    .slider-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+
+    .slider-label {
+      font-size: 14px;
+      color: var(--primary-color);
+      opacity: 0.8;
+    }
+
+    #paddle-speed-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      background: #333;
+      border-radius: 4px;
+      outline: none;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+
+    #paddle-speed-slider:hover {
+      opacity: 1;
+    }
+
+    #paddle-speed-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      cursor: pointer;
+      box-shadow: 0 0 5px var(--glow-color);
+    }
+
+    #paddle-speed-slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      cursor: pointer;
+      box-shadow: 0 0 5px var(--glow-color);
+      border: none;
+    }
+
+    #paddle-speed-value {
+      font-weight: bold;
+      color: var(--accent-color);
+    }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+      .btn {
+        min-width: 150px;
+        font-size: 14px;
+        padding: 8px 12px;
+      }
+
+      .mode-btn,
+      .difficulty-btn {
+        min-width: 80px;
+        font-size: 14px;
+        padding: 6px 10px;
+      }
+
+      #menu h1 {
+        font-size: 3rem;
+      }
+
+      .mode-container h2,
+      .difficulty-container h2,
+      .paddle-speed-container h2 {
+        font-size: 1.2rem;
+      }
+
+      #game-end h2 {
+        font-size: 1.5rem;
+      }
+
+      #score-container {
+        font-size: 2.5rem;
+      }
+
+      .slider-container {
+        max-width: 220px;
+      }
+
+      .slider-label {
+        font-size: 12px;
+      }
+    }
+
+    /* Game container and canvas */
+    #app {
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #game-container {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      height: 600px;
+      margin: 0 auto;
+      overflow: hidden;
+      border: 2px solid var(--primary-color);
+      box-shadow: 0 0 20px var(--glow-color);
+    }
+
+    #game-canvas {
+      background-color: var(--background-color);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    #menu {
+      position: absolute;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: var(--background-color);
+      transition: opacity 0.5s ease;
+      overflow-y: auto;
+      padding: 20px 0;
+    }
+
+    #menu h1 {
+      font-size: 5rem;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 10px var(--glow-color);
+      letter-spacing: 10px;
+    }
+
+    .mode-container,
+    .difficulty-container {
+      margin: 1rem 0;
+    }
+
+    .mode-container h2,
+    .difficulty-container h2 {
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+    }
+
+    #game-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    #score-container {
+      position: absolute;
+      top: 30px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      font-size: 3rem;
+      font-weight: bold;
+      text-shadow: 0 0 5px var(--glow-color);
+    }
+
+    #game-end, #pause-menu {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: var(--overlay-color);
+      pointer-events: auto;
+    }
+
+    #controls {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.8rem;
+    }
+
+    @media (max-height: 600px) {
+      #game-container {
+        height: 85vh;
+      }
+
+      #menu {
+        justify-content: flex-start;
+        padding-top: 30px;
+      }
+
+      #menu h1 {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .mode-container,
+      .difficulty-container {
+        margin: 0.5rem 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="game-container">
+      <div id="menu">
+        <h1>PONG</h1>
+        <div class="mode-container">
+          <h2>Game Mode</h2>
+          <div class="mode-buttons">
+            <button id="single-player" class="mode-btn active">1 Player</button>
+            <button id="two-player" class="mode-btn">2 Players</button>
           </div>
         </div>
-        <div id="game-overlay">
-          <div id="score-container">
-            <div id="player-score">0</div>
-            <div id="ai-score">0</div>
-          </div>
-          <div id="game-end" class="hidden">
-            <h2 id="winner-text"></h2>
-
-            <form id="player-name-form" class="hidden">
-              <div id="single-player-name-group" class="form-group">
-                <label for="single-player-name">Enter your name:</label>
-                <input type="text" id="single-player-name" placeholder="Your name" required>
-              </div>
-
-              <div id="player1-name-group" class="form-group hidden">
-                <label for="player1-name">Player 1 name:</label>
-                <input type="text" id="player1-name" placeholder="Player 1 name" required>
-              </div>
-
-              <div id="player2-name-group" class="form-group hidden">
-                <label for="player2-name">Player 2 name:</label>
-                <input type="text" id="player2-name" placeholder="Player 2 name" required>
-              </div>
-            </form>
-
-            <div id="save-status"></div>
-
-            <div class="button-group">
-              <button id="save-result-button">Save Result</button>
-              <a href="leaderboard.html" id="view-leaderboard-button" class="hidden">View Leaderboard</a>
-              <button id="restart-button">Play Again</button>
-            </div>
-          </div>
-          <div id="pause-menu" class="hidden">
-            <h2>Game Paused</h2>
-            <button id="resume-button">Resume</button>
-            <button id="quit-button">Quit</button>
+        <div class="difficulty-container">
+          <h2>Select Difficulty</h2>
+          <div class="difficulty-buttons">
+            <button id="easy" class="difficulty-btn active">Easy</button>
+            <button id="medium" class="difficulty-btn">Medium</button>
+            <button id="hard" class="difficulty-btn">Hard</button>
           </div>
         </div>
-        <canvas id="game-canvas"></canvas>
-        <div id="controls">
-          <p>Press ESC to pause | Player 1: W/S keys | Player 2: Arrow keys</p>
-        </div>
-        <!-- Mobile touch controls -->
-        <div id="mobile-controls" class="hidden">
-          <button id="mobile-pause-btn">PAUSE</button>
-          <div class="mobile-instructions visible">
-            <p>Swipe left side to control Player 1</p>
-            <p>Swipe right side to control Player 2</p>
-          </div>
+        <div class="menu-buttons">
+          <button id="start-button" class="btn btn-primary">Start Game</button>
+          <a href="leaderboard.html" id="leaderboard-page-link" class="btn btn-orange">View Leaderboard</a>
+          <a href="about.html" id="about-page-link" class="btn btn-purple">Об игре</a>
         </div>
       </div>
+      <div id="game-overlay">
+        <div id="score-container">
+          <div id="player-score">0</div>
+          <div id="ai-score">0</div>
+        </div>
+        <div id="game-end" class="hidden">
+          <h2 id="winner-text"></h2>
 
+          <form id="player-name-form" class="hidden">
+            <div id="single-player-name-group" class="form-group">
+              <label for="single-player-name">Enter your name:</label>
+              <input type="text" id="single-player-name" placeholder="Your name" required>
+            </div>
+
+            <div id="player1-name-group" class="form-group hidden">
+              <label for="player1-name">Player 1 name:</label>
+              <input type="text" id="player1-name" placeholder="Player 1 name" required>
+            </div>
+
+            <div id="player2-name-group" class="form-group hidden">
+              <label for="player2-name">Player 2 name:</label>
+              <input type="text" id="player2-name" placeholder="Player 2 name" required>
+            </div>
+          </form>
+
+          <div id="save-status"></div>
+
+          <div class="button-group">
+            <button id="save-result-button" class="btn btn-primary">Save Result</button>
+            <a href="leaderboard.html" id="view-leaderboard-button" class="btn btn-secondary hidden">View Leaderboard</a>
+            <button id="restart-button" class="btn btn-secondary">Play Again</button>
+          </div>
+        </div>
+        <div id="pause-menu" class="hidden">
+          <h2>Game Paused</h2>
+
+          <div class="paddle-speed-container">
+            <h2>Paddle Speed: <span id="paddle-speed-value">5</span></h2>
+            <div class="slider-container">
+              <span class="slider-label">Slow</span>
+              <input type="range" id="paddle-speed-slider" min="3" max="12" value="5" step="1">
+              <span class="slider-label">Fast</span>
+            </div>
+          </div>
+
+          <button id="resume-button" class="btn btn-primary">Resume</button>
+          <button id="quit-button" class="btn btn-secondary">Quit</button>
+        </div>
+      </div>
+      <canvas id="game-canvas"></canvas>
+      <div id="controls">
+        <p>Press ESC to pause | Player 1: W/S keys | Player 2: Arrow keys</p>
+      </div>
+
+      <!-- Mobile touch controls -->
+      <div id="mobile-controls" class="hidden">
+        <button id="mobile-fullscreen-btn">FULL</button>
+        <button id="mobile-pause-btn">PAUSE</button>
+        <div class="mobile-instructions">
+          <p>Swipe left side to control Player 1</p>
+          <p>Swipe right side to control Player 2</p>
+        </div>
+      </div>
     </div>
-    <script type="module" src="/main.js"></script>
-  </body>
-</html>
+  </div>
+  <script type="module" src="/main.js"></script>
+</body>
 </html>

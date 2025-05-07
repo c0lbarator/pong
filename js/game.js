@@ -11,7 +11,7 @@ export class Game {
     this.isPaused = false
     this.winScore = 30
     this.isTwoPlayerMode = false
-    this.serverUrl = "" // Update this with your Deno server URL
+    this.serverUrl = "http://localhost:8000" // Update this with your Deno server URL
     this.isMobileDevice = this.checkMobileDevice()
     this.touchControls = {
       player1TouchId: null,
@@ -19,11 +19,13 @@ export class Game {
       player1LastY: 0,
       player2LastY: 0,
     }
+    this.paddleSpeed = 5 // Default paddle speed
+
     this.resize()
 
     this.ball = new Ball(this.canvas.width / 2, this.canvas.height / 2)
-    this.playerPaddle = new Paddle(30, this.canvas.height / 2 - 40, 10, 80)
-    this.aiPaddle = new Paddle(this.canvas.width - 30 - 10, this.canvas.height / 2 - 40, 10, 80)
+    this.playerPaddle = new Paddle(30, this.canvas.height / 2 - 40, 10, 80, this.paddleSpeed)
+    this.aiPaddle = new Paddle(this.canvas.width - 30 - 10, this.canvas.height / 2 - 40, 10, 80, this.paddleSpeed)
     this.ai = new AI(this.aiPaddle, this.ball)
     this.score = new Score()
 
@@ -38,17 +40,28 @@ export class Game {
     this.handleTouchMove = this.handleTouchMove.bind(this)
     this.handleTouchEnd = this.handleTouchEnd.bind(this)
     this.togglePause = this.togglePause.bind(this)
+    this.toggleFullscreen = this.toggleFullscreen.bind(this)
+    this.setPaddleSpeed = this.setPaddleSpeed.bind(this)
+
     window.addEventListener("keydown", this.handleKeydown)
     window.addEventListener("keyup", this.handleKeyup)
     window.addEventListener("resize", this.resize)
+
     // Add touch event listeners
     this.canvas.addEventListener("touchstart", this.handleTouchStart, { passive: false })
     this.canvas.addEventListener("touchmove", this.handleTouchMove, { passive: false })
     this.canvas.addEventListener("touchend", this.handleTouchEnd)
     this.canvas.addEventListener("touchcancel", this.handleTouchEnd)
 
-    // Add pause button touch event
-    document.getElementById("mobile-pause-btn").addEventListener("click", this.togglePause)
+    // Add mobile control buttons event listeners
+    if (document.getElementById("mobile-pause-btn")) {
+      document.getElementById("mobile-pause-btn").addEventListener("click", this.togglePause)
+    }
+
+    if (document.getElementById("mobile-fullscreen-btn")) {
+      document.getElementById("mobile-fullscreen-btn").addEventListener("click", this.toggleFullscreen)
+    }
+
     this.keys = {
       ArrowUp: false,
       ArrowDown: false,
@@ -58,8 +71,57 @@ export class Game {
 
     // Set up event listener for the save result form
     document.getElementById("save-result-button").addEventListener("click", this.saveGameResult)
-    // Show/hide mobile controls based on device
-    this.setupMobileControls()
+
+    // Set up paddle speed slider
+    const paddleSpeedSlider = document.getElementById("paddle-speed-slider")
+    const paddleSpeedValue = document.getElementById("paddle-speed-value")
+
+    if (paddleSpeedSlider) {
+      paddleSpeedSlider.addEventListener("input", (e) => {
+        const speed = Number.parseInt(e.target.value)
+        paddleSpeedValue.textContent = speed
+        this.setPaddleSpeed(speed)
+      })
+
+      // Set initial paddle speed
+      this.setPaddleSpeed(Number.parseInt(paddleSpeedSlider.value))
+      paddleSpeedValue.textContent = paddleSpeedSlider.value
+    }
+
+    // Hide mobile controls initially
+    this.updateMobileControlsVisibility()
+  }
+
+  setPaddleSpeed(speed) {
+    this.paddleSpeed = speed
+    this.playerPaddle.setMoveSpeed(speed)
+    this.aiPaddle.setMoveSpeed(speed)
+  }
+
+  toggleFullscreen() {
+    const gameContainer = document.getElementById("game-container")
+
+    if (!document.fullscreenElement) {
+      if (gameContainer.requestFullscreen) {
+        gameContainer.requestFullscreen()
+      } else if (gameContainer.webkitRequestFullscreen) {
+        /* Safari */
+        gameContainer.webkitRequestFullscreen()
+      } else if (gameContainer.msRequestFullscreen) {
+        /* IE11 */
+        gameContainer.msRequestFullscreen()
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen()
+      } else if (document.webkitExitFullscreen) {
+        /* Safari */
+        document.webkitExitFullscreen()
+      } else if (document.msExitFullscreen) {
+        /* IE11 */
+        document.msExitFullscreen()
+      }
+    }
   }
 
   checkMobileDevice() {
@@ -69,14 +131,20 @@ export class Game {
     )
   }
 
-  setupMobileControls() {
+  updateMobileControlsVisibility() {
     const mobileControls = document.getElementById("mobile-controls")
-    if (this.isMobileDevice) {
-      mobileControls.classList.remove("hidden")
-      document.getElementById("controls").classList.add("hidden")
-    } else {
-      mobileControls.classList.add("hidden")
-      document.getElementById("controls").classList.remove("hidden")
+    const mobileInstructions = document.querySelector(".mobile-instructions")
+
+    if (mobileControls) {
+      if (this.isMobileDevice && this.isRunning && !this.isPaused) {
+        mobileControls.classList.remove("hidden")
+      } else {
+        mobileControls.classList.add("hidden")
+      }
+    }
+
+    if (mobileInstructions) {
+      mobileInstructions.classList.remove("visible")
     }
   }
 
@@ -197,9 +265,10 @@ export class Game {
       this.playerPaddle.x = 30
       this.aiPaddle.x = this.canvas.width - 30 - this.aiPaddle.width
     }
+
     // Check if device is mobile after resize
     this.isMobileDevice = this.checkMobileDevice()
-    this.setupMobileControls()
+    this.updateMobileControlsVisibility()
   }
 
   checkCollisions() {
@@ -277,6 +346,7 @@ export class Game {
     this.ball.render(this.ctx)
     this.playerPaddle.render(this.ctx)
     this.aiPaddle.render(this.ctx)
+
     // Render touch areas for mobile
     if (this.isMobileDevice && this.isRunning && !this.isPaused) {
       this.renderTouchAreas()
@@ -297,11 +367,13 @@ export class Game {
       this.ctx.fillRect(halfWidth, 0, halfWidth, this.canvas.height)
     }
   }
+
   start() {
     if (!this.isRunning) {
       this.isRunning = true
       this.lastTime = performance.now()
       requestAnimationFrame(this.gameLoop)
+      this.updateMobileControlsVisibility()
     }
   }
 
@@ -317,6 +389,17 @@ export class Game {
     if (this.isRunning && !this.isPaused) {
       this.isPaused = true
       document.getElementById("pause-menu").classList.remove("hidden")
+
+      // Update paddle speed slider value in pause menu
+      const paddleSpeedSlider = document.getElementById("paddle-speed-slider")
+      const paddleSpeedValue = document.getElementById("paddle-speed-value")
+
+      if (paddleSpeedSlider && paddleSpeedValue) {
+        paddleSpeedSlider.value = this.paddleSpeed
+        paddleSpeedValue.textContent = this.paddleSpeed
+      }
+
+      this.updateMobileControlsVisibility()
     }
   }
 
@@ -325,6 +408,7 @@ export class Game {
       this.isPaused = false
       this.lastTime = performance.now()
       requestAnimationFrame(this.gameLoop)
+      this.updateMobileControlsVisibility()
     }
   }
 
@@ -403,6 +487,7 @@ export class Game {
 
       playerNameForm.classList.remove("hidden")
       gameEndElement.classList.remove("hidden")
+      this.updateMobileControlsVisibility()
     }
   }
 
@@ -425,80 +510,43 @@ export class Game {
 
         gameData = {
           gameMode: "2 Players",
-          playerName: player1Name,
-          playerScore: this.score.playerScore,
+          player1Name,
+          player2Name,
+          player1Score: this.score.playerScore,
+          player2Score: this.score.aiScore,
           winner: this.score.playerScore > this.score.aiScore ? player1Name : player2Name,
-          difficulty: document.querySelector(".difficulty-btn.active").id
-        }
-        const response1 = await fetch(`${this.serverUrl}/api/save-result`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(gameData),
-        })
-
-        const result1 = await response1.json()
-
-        if (!result1.success) {
-          throw new Error(result.error || "Failed to save result")
-        }
-        gameData = {
-          gameMode: "2 Players",
-          playerName: player2Name,
-          playerScore: this.score.aiScore,
-          winner: this.score.playerScore > this.score.aiScore ? player1Name : player2Name,
-          difficulty: document.querySelector(".difficulty-btn.active").id
-        }
-        const response2 = await fetch(`${this.serverUrl}/api/save-result`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(gameData),
-        })
-
-        const result2 = await response2.json()
-
-        if (result2.success) {
-          statusMessage.textContent = "Result saved successfully!"
-          statusMessage.className = "success-message"
-
-          // Show the leaderboard button
-          document.getElementById("view-leaderboard-button").classList.remove("hidden")
-        } else {
-          throw new Error(result.error || "Failed to save result")
         }
       } else {
         const playerName = document.getElementById("single-player-name").value || "Player"
 
         gameData = {
           gameMode: "1 Player",
-          playerName: playerName,
+          playerName,
           playerScore: this.score.playerScore,
           computerScore: this.score.aiScore,
           winner: this.score.playerScore > this.score.aiScore ? playerName : "Computer",
           difficulty: document.querySelector(".difficulty-btn.active").id,
         }
-        const response = await fetch(`${this.serverUrl}/api/save-result`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(gameData),
-        })
+      }
 
-        const result = await response.json()
+      const response = await fetch(`${this.serverUrl}/api/save-result`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(gameData),
+      })
 
-        if (result.success) {
-          statusMessage.textContent = "Result saved successfully!"
-          statusMessage.className = "success-message"
+      const result = await response.json()
 
-          // Show the leaderboard button
-          document.getElementById("view-leaderboard-button").classList.remove("hidden")
-        } else {
-          throw new Error(result.error || "Failed to save result")
-        }
+      if (result.success) {
+        statusMessage.textContent = "Result saved successfully!"
+        statusMessage.className = "success-message"
+
+        // Show the leaderboard link
+        document.getElementById("view-leaderboard-button").classList.remove("hidden")
+      } else {
+        throw new Error(result.error || "Failed to save result")
       }
     } catch (error) {
       console.error("Error saving game result:", error)

@@ -31,6 +31,9 @@ export class Paddle {
     const canvas = document.getElementById('game-canvas');
     this.y = Math.max(0, Math.min(this.y, canvas.height - this.height));
   }
+  setMoveSpeed(speed) {
+    this.moveSpeed = speed
+  }
   
   render(ctx) {
     ctx.shadowColor = '#fff';
