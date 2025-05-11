@@ -2,7 +2,7 @@ export class AI {
   constructor(paddle, ball) {
     this.paddle = paddle;
     this.ball = ball;
-    this.difficulty = 'easy';
+    this.difficulty = 'dynamic';
     this.reactionDelayFrames = 15;
     this.framesToSkip = 0;
     this.perfectTracking = false;

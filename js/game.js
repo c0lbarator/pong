@@ -81,6 +81,9 @@ export class Game {
     if (document.getElementById("mobile-fullscreen-btn")) {
       document.getElementById("mobile-fullscreen-btn").addEventListener("click", this.toggleFullscreen)
     }
+    if (document.getElementById("fullscreen-btn-external")) {
+      document.getElementById("fullscreen-btn-external").addEventListener("click", this.toggleFullscreen)
+    }
     document.getElementById("save-result-button").addEventListener("click", this.saveGameResult)
     /*{{ this.difficultyButtons = document.querySelectorAll('.difficulty-btn');
     const handleDifficultyClick = (e) => {
@@ -129,7 +132,9 @@ export class Game {
     if (document.getElementById("mobile-fullscreen-btn")) {
       document.getElementById("mobile-fullscreen-btn").removeEventListener("click", this.toggleFullscreen)
     }
-
+    if (document.getElementById("fullscreen-btn-external")) {
+      document.getElementById("fullscreen-btn-external").removeEventListener("click", this.toggleFullscreen)
+    }
     document.getElementById("save-result-button").removeEventListener("click", this.saveGameResult)
     /*this.difficultyButtons.forEach(btn => {
       btn.removeEventListener('click', this.handleDifficultyClick);
