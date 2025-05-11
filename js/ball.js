@@ -12,19 +12,16 @@ export class Ball {
   }
   
   update(deltaTime) {
-    // Save current position for trail effect
     this.trailPositions.unshift({ x: this.x, y: this.y });
     if (this.trailPositions.length > this.maxTrailLength) {
       this.trailPositions.pop();
     }
     
-    // Update position
     this.x += this.velocityX * deltaTime;
     this.y += this.velocityY * deltaTime;
   }
   
   render(ctx) {
-    // Draw trail
     for (let i = 0; i < this.trailPositions.length; i++) {
       const pos = this.trailPositions[i];
       const alpha = 0.3 - (i / this.trailPositions.length) * 0.3;
@@ -34,13 +31,11 @@ export class Ball {
       ctx.fill();
     }
     
-    // Draw ball
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
     ctx.fillStyle = this.color;
     ctx.fill();
     
-    // Add glow effect
     ctx.shadowColor = '#fff';
     ctx.shadowBlur = 10;
     ctx.beginPath();
@@ -55,14 +50,12 @@ export class Ball {
     this.y = y;
     this.speed = 300;
     
-    // Randomize initial direction
     const direction = Math.random() > 0.5 ? 1 : -1;
-    const angle = Math.random() * Math.PI / 4 - Math.PI / 8; // -22.5 to 22.5 degrees
+    const angle = Math.random() * Math.PI / 4 - Math.PI / 8;
     
     this.velocityX = direction * this.speed * Math.cos(angle);
     this.velocityY = this.speed * Math.sin(angle);
     
-    // Clear trail
     this.trailPositions = [];
   }
 }

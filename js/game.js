@@ -7,11 +7,12 @@ export class Game {
   constructor() {
     this.canvas = document.getElementById("game-canvas")
     this.ctx = this.canvas.getContext("2d")
+    this.difficulty = 'easy'
     this.isRunning = false
     this.isPaused = false
-    this.winScore = 30
+    this.winScore = 11
     this.isTwoPlayerMode = false
-    this.serverUrl = "http://localhost:8000" // Update this with your Deno server URL
+    this.serverUrl = ""
     this.isMobileDevice = this.checkMobileDevice()
     this.touchControls = {
       player1TouchId: null,
@@ -19,8 +20,9 @@ export class Game {
       player1LastY: 0,
       player2LastY: 0,
     }
-    this.paddleSpeed = 5 // Default paddle speed
-
+    this.paddleSpeed = 5
+    this.animationFrameId = null
+    this.difficultyChanged = false
     this.resize()
 
     this.ball = new Ball(this.canvas.width / 2, this.canvas.height / 2)
@@ -42,37 +44,10 @@ export class Game {
     this.togglePause = this.togglePause.bind(this)
     this.toggleFullscreen = this.toggleFullscreen.bind(this)
     this.setPaddleSpeed = this.setPaddleSpeed.bind(this)
+    this.cleanupEventListeners = this.cleanupEventListeners.bind(this)
+    this.setupEventListeners = this.setupEventListeners.bind(this)
+    this.setupEventListeners()
 
-    window.addEventListener("keydown", this.handleKeydown)
-    window.addEventListener("keyup", this.handleKeyup)
-    window.addEventListener("resize", this.resize)
-
-    // Add touch event listeners
-    this.canvas.addEventListener("touchstart", this.handleTouchStart, { passive: false })
-    this.canvas.addEventListener("touchmove", this.handleTouchMove, { passive: false })
-    this.canvas.addEventListener("touchend", this.handleTouchEnd)
-    this.canvas.addEventListener("touchcancel", this.handleTouchEnd)
-
-    // Add mobile control buttons event listeners
-    if (document.getElementById("mobile-pause-btn")) {
-      document.getElementById("mobile-pause-btn").addEventListener("click", this.togglePause)
-    }
-
-    if (document.getElementById("mobile-fullscreen-btn")) {
-      document.getElementById("mobile-fullscreen-btn").addEventListener("click", this.toggleFullscreen)
-    }
-
-    this.keys = {
-      ArrowUp: false,
-      ArrowDown: false,
-      w: false,
-      s: false,
-    }
-
-    // Set up event listener for the save result form
-    document.getElementById("save-result-button").addEventListener("click", this.saveGameResult)
-
-    // Set up paddle speed slider
     const paddleSpeedSlider = document.getElementById("paddle-speed-slider")
     const paddleSpeedValue = document.getElementById("paddle-speed-value")
 
@@ -83,13 +58,73 @@ export class Game {
         this.setPaddleSpeed(speed)
       })
 
-      // Set initial paddle speed
       this.setPaddleSpeed(Number.parseInt(paddleSpeedSlider.value))
       paddleSpeedValue.textContent = paddleSpeedSlider.value
     }
 
-    // Hide mobile controls initially
     this.updateMobileControlsVisibility()
+  }
+
+  setupEventListeners() {
+    window.addEventListener("keydown", this.handleKeydown)
+    window.addEventListener("keyup", this.handleKeyup)
+    window.addEventListener("resize", this.resize)
+
+    this.canvas.addEventListener("touchstart", this.handleTouchStart, { passive: false })
+    this.canvas.addEventListener("touchmove", this.handleTouchMove, { passive: false })
+    this.canvas.addEventListener("touchend", this.handleTouchEnd)
+    this.canvas.addEventListener("touchcancel", this.handleTouchEnd)
+
+    if (document.getElementById("mobile-pause-btn")) {
+      document.getElementById("mobile-pause-btn").addEventListener("click", this.togglePause)
+    }
+
+    if (document.getElementById("mobile-fullscreen-btn")) {
+      document.getElementById("mobile-fullscreen-btn").addEventListener("click", this.toggleFullscreen)
+    }
+
+    {{ this.difficultyButtons = document.querySelectorAll('.difficulty-btn');
+    const handleDifficultyClick = (e) => {
+      this.difficultyButtons.forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      this.difficulty = e.target.id;
+    };
+
+    this.handleDifficultyClick = handleDifficultyClick;
+
+    this.difficultyButtons.forEach(btn => {
+      btn.addEventListener('click', this.handleDifficultyClick);
+    }); }}
+    this.keys = {
+      ArrowUp: false,
+      ArrowDown: false,
+      w: false,
+      s: false,
+    }
+  }
+
+  cleanupEventListeners() {
+    window.removeEventListener("keydown", this.handleKeydown)
+    window.removeEventListener("keyup", this.handleKeyup)
+    window.removeEventListener("resize", this.resize)
+
+    this.canvas.removeEventListener("touchstart", this.handleTouchStart)
+    this.canvas.removeEventListener("touchmove", this.handleTouchMove)
+    this.canvas.removeEventListener("touchend", this.handleTouchEnd)
+    this.canvas.removeEventListener("touchcancel", this.handleTouchEnd)
+
+    if (document.getElementById("mobile-pause-btn")) {
+      document.getElementById("mobile-pause-btn").removeEventListener("click", this.togglePause)
+    }
+
+    if (document.getElementById("mobile-fullscreen-btn")) {
+      document.getElementById("mobile-fullscreen-btn").removeEventListener("click", this.toggleFullscreen)
+    }
+
+    document.getElementById("save-result-button").removeEventListener("click", this.saveGameResult)
+    this.difficultyButtons.forEach(btn => {
+      btn.removeEventListener('click', this.handleDifficultyClick);
+    });
   }
 
   setPaddleSpeed(speed) {
@@ -107,9 +142,6 @@ export class Game {
       } else if (gameContainer.webkitRequestFullscreen) {
         /* Safari */
         gameContainer.webkitRequestFullscreen()
-      } else if (gameContainer.msRequestFullscreen) {
-        /* IE11 */
-        gameContainer.msRequestFullscreen()
       }
     } else {
       if (document.exitFullscreen) {
@@ -117,9 +149,6 @@ export class Game {
       } else if (document.webkitExitFullscreen) {
         /* Safari */
         document.webkitExitFullscreen()
-      } else if (document.msExitFullscreen) {
-        /* IE11 */
-        document.msExitFullscreen()
       }
     }
   }
@@ -162,31 +191,28 @@ export class Game {
 
     if (!this.isRunning || this.isPaused) return
 
-      const canvasRect = this.canvas.getBoundingClientRect()
-      const canvasMidpoint = canvasRect.left + canvasRect.width / 2
+    const canvasRect = this.canvas.getBoundingClientRect()
+    const canvasMidpoint = canvasRect.left + canvasRect.width / 2
 
-      for (let i = 0; i < e.changedTouches.length; i++) {
-        const touch = e.changedTouches[i]
-        const touchX = touch.clientX
-        const touchY = touch.clientY - canvasRect.top
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const touch = e.changedTouches[i]
+      const touchX = touch.clientX
+      const touchY = touch.clientY - canvasRect.top
 
-        // Determine which side of the screen was touched
-        if (touchX < canvasMidpoint) {
-          // Left side - Player 1
-          if (this.touchControls.player1TouchId === null) {
-            this.touchControls.player1TouchId = touch.identifier
-            this.touchControls.player1LastY = touchY
-            this.movePaddleToPosition(this.playerPaddle, touchY)
-          }
-        } else {
-          // Right side - Player 2 (or AI in single player)
-          if (this.isTwoPlayerMode && this.touchControls.player2TouchId === null) {
-            this.touchControls.player2TouchId = touch.identifier
-            this.touchControls.player2LastY = touchY
-            this.movePaddleToPosition(this.aiPaddle, touchY)
-          }
+      if (touchX < canvasMidpoint) {
+        if (this.touchControls.player1TouchId === null) {
+          this.touchControls.player1TouchId = touch.identifier
+          this.touchControls.player1LastY = touchY
+          this.movePaddleToPosition(this.playerPaddle, touchY)
+        }
+      } else {
+        if (this.isTwoPlayerMode && this.touchControls.player2TouchId === null) {
+          this.touchControls.player2TouchId = touch.identifier
+          this.touchControls.player2LastY = touchY
+          this.movePaddleToPosition(this.aiPaddle, touchY)
         }
       }
+    }
   }
 
   handleTouchMove(e) {
@@ -194,34 +220,30 @@ export class Game {
 
     if (!this.isRunning || this.isPaused) return
 
-      const canvasRect = this.canvas.getBoundingClientRect()
+    const canvasRect = this.canvas.getBoundingClientRect()
 
-      for (let i = 0; i < e.changedTouches.length; i++) {
-        const touch = e.changedTouches[i]
-        const touchY = touch.clientY - canvasRect.top
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const touch = e.changedTouches[i]
+      const touchY = touch.clientY - canvasRect.top
 
-        // Check if this touch is the one we're tracking for player 1
-        if (touch.identifier === this.touchControls.player1TouchId) {
-          this.touchControls.player1LastY = touchY
-          this.movePaddleToPosition(this.playerPaddle, touchY)
-        }
-        // Check if this touch is the one we're tracking for player 2
-        else if (this.isTwoPlayerMode && touch.identifier === this.touchControls.player2TouchId) {
-          this.touchControls.player2LastY = touchY
-          this.movePaddleToPosition(this.aiPaddle, touchY)
-        }
+      if (touch.identifier === this.touchControls.player1TouchId) {
+        this.touchControls.player1LastY = touchY
+        this.movePaddleToPosition(this.playerPaddle, touchY)
       }
+      else if (this.isTwoPlayerMode && touch.identifier === this.touchControls.player2TouchId) {
+        this.touchControls.player2LastY = touchY
+        this.movePaddleToPosition(this.aiPaddle, touchY)
+      }
+    }
   }
 
   handleTouchEnd(e) {
     for (let i = 0; i < e.changedTouches.length; i++) {
       const touch = e.changedTouches[i]
 
-      // Check if this is the touch we're tracking for player 1
       if (touch.identifier === this.touchControls.player1TouchId) {
         this.touchControls.player1TouchId = null
       }
-      // Check if this is the touch we're tracking for player 2
       else if (touch.identifier === this.touchControls.player2TouchId) {
         this.touchControls.player2TouchId = null
       }
@@ -229,10 +251,8 @@ export class Game {
   }
 
   movePaddleToPosition(paddle, touchY) {
-    // Calculate the center position of the paddle
     const paddleCenter = paddle.height / 2
 
-    // Set the paddle's y position, ensuring it stays within the canvas bounds
     paddle.y = Math.max(0, Math.min(this.canvas.height - paddle.height, touchY - paddleCenter))
   }
 
@@ -266,7 +286,6 @@ export class Game {
       this.aiPaddle.x = this.canvas.width - 30 - this.aiPaddle.width
     }
 
-    // Check if device is mobile after resize
     this.isMobileDevice = this.checkMobileDevice()
     this.updateMobileControlsVisibility()
   }
@@ -289,7 +308,7 @@ export class Game {
       this.ball.y - this.ball.radius < this.playerPaddle.y + this.playerPaddle.height
     ) {
       const collidePoint =
-      (this.ball.y - (this.playerPaddle.y + this.playerPaddle.height / 2)) / (this.playerPaddle.height / 2)
+        (this.ball.y - (this.playerPaddle.y + this.playerPaddle.height / 2)) / (this.playerPaddle.height / 2)
       const angle = (collidePoint * Math.PI) / 4
 
       const direction = 1
@@ -325,8 +344,12 @@ export class Game {
   }
 
   checkDynamicDifficulty() {
-    if (!this.isTwoPlayerMode && (this.score.playerScore === 10 || this.score.aiScore === 10)) {
-      this.ai.enableDynamicDifficulty()
+    if (!this.isTwoPlayerMode && this.difficulty == 'dynamic') {
+      if (this.score.playerScore === 4) {
+        this.ai.setDifficulty('medium');
+      } else if (this.score.playerScore === 8) {
+        this.ai.setDifficulty('hard');
+      }
     }
   }
 
@@ -347,21 +370,17 @@ export class Game {
     this.playerPaddle.render(this.ctx)
     this.aiPaddle.render(this.ctx)
 
-    // Render touch areas for mobile
     if (this.isMobileDevice && this.isRunning && !this.isPaused) {
       this.renderTouchAreas()
     }
   }
 
   renderTouchAreas() {
-    // Draw semi-transparent touch areas
     const halfWidth = this.canvas.width / 2
 
-    // Left side - Player 1
     this.ctx.fillStyle = "rgba(0, 100, 255, 0.1)"
     this.ctx.fillRect(0, 0, halfWidth, this.canvas.height)
 
-    // Right side - Player 2 or AI
     if (this.isTwoPlayerMode) {
       this.ctx.fillStyle = "rgba(255, 100, 0, 0.1)"
       this.ctx.fillRect(halfWidth, 0, halfWidth, this.canvas.height)
@@ -372,7 +391,7 @@ export class Game {
     if (!this.isRunning) {
       this.isRunning = true
       this.lastTime = performance.now()
-      requestAnimationFrame(this.gameLoop)
+      this.animationFrameId = requestAnimationFrame(this.gameLoop)
       this.updateMobileControlsVisibility()
     }
   }
@@ -390,7 +409,6 @@ export class Game {
       this.isPaused = true
       document.getElementById("pause-menu").classList.remove("hidden")
 
-      // Update paddle speed slider value in pause menu
       const paddleSpeedSlider = document.getElementById("paddle-speed-slider")
       const paddleSpeedValue = document.getElementById("paddle-speed-value")
 
@@ -407,53 +425,76 @@ export class Game {
     if (this.isPaused) {
       this.isPaused = false
       this.lastTime = performance.now()
-      requestAnimationFrame(this.gameLoop)
+      this.animationFrameId = requestAnimationFrame(this.gameLoop)
       this.updateMobileControlsVisibility()
+    }
+  }
+
+  stop() {
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId)
+      this.animationFrameId = null
+    }
+    this.isRunning = false
+    this.isPaused = false
+    this.cleanupEventListeners()
+
+    this.touchControls = {
+      player1TouchId: null,
+      player2TouchId: null,
+      player1LastY: 0,
+      player2LastY: 0,
+    }
+
+    this.keys = {
+      ArrowUp: false,
+      ArrowDown: false,
+      w: false,
+      s: false,
     }
   }
 
   gameLoop(timestamp) {
     if (!this.isRunning) return
-      if (this.isPaused) return
+    if (this.isPaused) return
 
-        const deltaTime = (timestamp - this.lastTime) / 1000
-        this.lastTime = timestamp
+    const deltaTime = (timestamp - this.lastTime) / 1000
+    this.lastTime = timestamp
 
-        this.update(deltaTime)
-        this.render()
+    this.update(deltaTime)
+    this.render()
 
-        requestAnimationFrame(this.gameLoop)
+    this.animationFrameId = requestAnimationFrame(this.gameLoop)
   }
 
   update(deltaTime) {
-    // W/S for left player, Arrow keys for right player
     if (this.keys.w) this.playerPaddle.moveUp()
-      if (this.keys.s) this.playerPaddle.moveDown()
+    if (this.keys.s) this.playerPaddle.moveDown()
 
-        if (this.isTwoPlayerMode) {
-          if (this.keys.ArrowUp) this.aiPaddle.moveUp()
-            if (this.keys.ArrowDown) this.aiPaddle.moveDown()
-        } else {
-          this.ai.update(deltaTime)
-        }
+    if (this.isTwoPlayerMode) {
+      if (this.keys.ArrowUp) this.aiPaddle.moveUp()
+      if (this.keys.ArrowDown) this.aiPaddle.moveDown()
+    } else {
+      this.ai.update(deltaTime)
+    }
 
-        this.ball.update(deltaTime)
-        this.checkCollisions()
+    this.ball.update(deltaTime)
+    this.checkCollisions()
 
-        if (this.ball.x < 0) {
-          this.score.aiScore++
-          this.updateScore()
-          this.ball.reset(this.canvas.width / 2, this.canvas.height / 2)
-          this.ball.velocityX = -this.ball.velocityX
-          this.checkGameEnd()
-          this.checkDynamicDifficulty()
-        } else if (this.ball.x > this.canvas.width) {
-          this.score.playerScore++
-          this.updateScore()
-          this.ball.reset(this.canvas.width / 2, this.canvas.height / 2)
-          this.checkGameEnd()
-          this.checkDynamicDifficulty()
-        }
+    if (this.ball.x < 0) {
+      this.score.aiScore++
+      this.updateScore()
+      this.ball.reset(this.canvas.width / 2, this.canvas.height / 2)
+      this.ball.velocityX = -this.ball.velocityX
+      this.checkGameEnd()
+      this.checkDynamicDifficulty()
+    } else if (this.ball.x > this.canvas.width) {
+      this.score.playerScore++
+      this.updateScore()
+      this.ball.reset(this.canvas.width / 2, this.canvas.height / 2)
+      this.checkGameEnd()
+      this.checkDynamicDifficulty()
+    }
   }
 
   updateScore() {
@@ -464,17 +505,21 @@ export class Game {
   checkGameEnd() {
     if (this.score.playerScore >= this.winScore || this.score.aiScore >= this.winScore) {
       this.isRunning = false
+      if (this.animationFrameId) {
+        cancelAnimationFrame(this.animationFrameId)
+        this.animationFrameId = null
+      }
+
       const gameEndElement = document.getElementById("game-end")
       const winnerTextElement = document.getElementById("winner-text")
       const playerNameForm = document.getElementById("player-name-form")
 
       if (this.score.playerScore >= this.winScore) {
-        winnerTextElement.innerText = this.isTwoPlayerMode ? "Player 1 Wins!" : "You Win!"
+        winnerTextElement.innerText = this.isTwoPlayerMode ? "Игрок 1 выиграл!" : "Вы выиграли!"
       } else {
-        winnerTextElement.innerText = this.isTwoPlayerMode ? "Player 2 Wins!" : "Computer Wins!"
+        winnerTextElement.innerText = this.isTwoPlayerMode ? "Игрок 2 выиграл!" : "Компьютер выиграл!"
       }
 
-      // Show the appropriate name input fields based on game mode
       if (this.isTwoPlayerMode) {
         document.getElementById("player1-name-group").classList.remove("hidden")
         document.getElementById("player2-name-group").classList.remove("hidden")
@@ -540,17 +585,16 @@ export class Game {
       const result = await response.json()
 
       if (result.success) {
-        statusMessage.textContent = "Result saved successfully!"
+        statusMessage.textContent = "Результат успешно сохранён!"
         statusMessage.className = "success-message"
 
-        // Show the leaderboard link
         document.getElementById("view-leaderboard-button").classList.remove("hidden")
       } else {
         throw new Error(result.error || "Failed to save result")
       }
     } catch (error) {
       console.error("Error saving game result:", error)
-      statusMessage.textContent = "Failed to save result. Please try again."
+      statusMessage.textContent = "Не получилось сохранить результат. Попробуйте снова, пожалуйста"
       statusMessage.className = "error-message"
     } finally {
       saveButton.disabled = false

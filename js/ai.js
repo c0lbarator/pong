@@ -13,7 +13,7 @@ export class AI {
       btn.addEventListener('click', (e) => {
         document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
         e.target.classList.add('active');
-        this.setDifficulty(e.target.id);
+        this.setDifficulty(e.target.id != 'dynamic' ? e.target.id: 'easy');
       });
     });
   }
@@ -70,7 +70,6 @@ export class AI {
           const timeToReach = distanceToTravel / this.ball.velocityX;
           const futureY = this.ball.y + this.ball.velocityY * timeToReach;
           
-          // Add randomness even in perfect tracking mode
           const errorMargin = 20;
           targetY = futureY - this.paddle.height / 2 + (Math.random() * errorMargin * 2 - errorMargin);
         } else {

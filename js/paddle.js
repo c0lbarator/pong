@@ -5,7 +5,7 @@ export class Paddle {
     this.width = width;
     this.height = height;
     this.color = '#fff';
-    this.moveSpeed = 15; // Reduced from 30 to 15 for slower movement
+    this.moveSpeed = 15;
     this.maxSpeed = 600;
   }
   

@@ -7,12 +7,9 @@ export class Menu {
   }
   
   setupEventListeners() {
-    // Add click event listeners to difficulty buttons
     this.difficultyButtons.forEach(button => {
       button.addEventListener('click', (e) => {
-        // Remove active class from all buttons
         this.difficultyButtons.forEach(btn => btn.classList.remove('active'));
-        // Add active class to clicked button
         e.target.classList.add('active');
       });
     });

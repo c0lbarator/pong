@@ -12,7 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
         direction: "desc",
     }
 
-    // Load leaderboard data
     async function loadLeaderboard() {
         try {
             leaderboardTableBody.innerHTML = '<tr><td colspan="5" class="loading">Loading leaderboard data...</td></tr>'
@@ -36,19 +35,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Filter and render leaderboard data
     function filterAndRenderLeaderboard() {
         const gameMode = gameModeFilter.value
         const difficulty = difficultyFilter.value
 
-        // Apply filters
         const filteredData = leaderboardData.filter((result) => {
-            // Game mode filter
             if (gameMode !== "all" && result.gameMode !== gameMode) {
                 return false
             }
 
-            // Difficulty filter (only applies to single player games)
             if (difficulty !== "all" && result.gameMode === "1 Player" && result.difficulty !== difficulty) {
                 return false
             }
@@ -56,21 +51,17 @@ document.addEventListener("DOMContentLoaded", () => {
             return true
         })
 
-        // Sort data
         sortData(filteredData)
 
-        // Render filtered and sorted data
         renderLeaderboard(filteredData)
     }
 
-    // Sort data based on current sort settings
     function sortData(data) {
         data.sort((a, b) => {
             let valueA, valueB
 
             switch (currentSort.column) {
                 case "rank":
-                    // Default sort by score (highest first)
                     valueA = a.gameMode === "1 Player" ? a.playerScore : a.playerScore
                     valueB = b.gameMode === "1 Player" ? b.playerScore : b.playerScore
                     break
@@ -95,28 +86,23 @@ document.addEventListener("DOMContentLoaded", () => {
                     valueB = 0
             }
 
-            // Handle string comparison
             if (typeof valueA === "string" && typeof valueB === "string") {
                 return currentSort.direction === "asc" ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA)
             }
 
-            // Handle numeric comparison
             return currentSort.direction === "asc" ? valueA - valueB : valueB - valueA
         })
     }
 
-    // Render leaderboard data
     function renderLeaderboard(data) {
         if (data.length === 0) {
             leaderboardTableBody.innerHTML =
-            '<tr><td colspan="5" class="no-results">No game results match the selected filters</td></tr>'
+            '<tr><td colspan="5" class="no-results">Результаты по заданному фильтру не найдены</td></tr>'
             return
         }
 
-        // Clear existing rows
         leaderboardTableBody.innerHTML = ""
 
-        // Add rows for each result
         data.forEach((result, index) => {
             const row = document.createElement("tr")
 
@@ -138,7 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td>${index + 1}</td>
                 <td>${result.playerName}</td>
                 <td>${result.playerScore}</td>
-                <td><span class="winner">${result.winner}</span></td>
+                <td>${result.winner}</td>
                 <td>${formattedDate}</td>
                 `
             }
@@ -147,18 +133,15 @@ document.addEventListener("DOMContentLoaded", () => {
         })
     }
 
-    // Set up event listeners
     refreshButton.addEventListener("click", loadLeaderboard)
 
     gameModeFilter.addEventListener("change", filterAndRenderLeaderboard)
     difficultyFilter.addEventListener("change", filterAndRenderLeaderboard)
 
-    // Set up sortable headers
     sortableHeaders.forEach((header) => {
         header.addEventListener("click", () => {
             const column = header.getAttribute("data-sort")
 
-            // Toggle direction if clicking the same column
             if (currentSort.column === column) {
                 currentSort.direction = currentSort.direction === "asc" ? "desc" : "asc"
             } else {
@@ -166,7 +149,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 currentSort.direction = "asc"
             }
 
-            // Update UI to show sort direction
             sortableHeaders.forEach((h) => h.classList.remove("sort-asc", "sort-desc"))
             header.classList.add(`sort-${currentSort.direction}`)
 
@@ -174,6 +156,5 @@ document.addEventListener("DOMContentLoaded", () => {
         })
     })
 
-    // Initial load
     loadLeaderboard()
 })

@@ -1,7 +1,7 @@
 import { Game } from "/js/game.js"
 
 document.addEventListener("DOMContentLoaded", () => {
-  const game = new Game()
+  let game = new Game()
 
   const singlePlayerBtn = document.getElementById("single-player")
   const twoPlayerBtn = document.getElementById("two-player")
@@ -10,8 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const resumeButton = document.getElementById("resume-button")
   const quitButton = document.getElementById("quit-button")
   const mobileInstructions = document.querySelector(".mobile-instructions")
-  const paddleSpeedSelector = document.getElementById("paddle-speed-selector")
-
+  const pcInstructions = document.getElementById("controls-instructions")
   singlePlayerBtn.addEventListener("click", () => {
     document.querySelectorAll(".mode-btn").forEach((btn) => btn.classList.remove("active"))
     singlePlayerBtn.classList.add("active")
@@ -31,9 +30,9 @@ document.addEventListener("DOMContentLoaded", () => {
     game.reset()
     game.start()
 
-    // Show mobile instructions for 3 seconds
     if (game.isMobileDevice) {
       mobileInstructions.classList.add("visible")
+      pcInstructions.classList.add("hidden")
       setTimeout(() => {
         mobileInstructions.classList.remove("visible")
       }, 3000)
@@ -56,12 +55,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   quitButton.addEventListener("click", () => {
     document.getElementById("pause-menu").classList.add("hidden")
+    game.stop()
     document.getElementById("menu").classList.remove("hidden")
-    game.isRunning = false
-    game.updateMobileControlsVisibility()
+
+    setTimeout(() => {
+      window.game = new Game()
+      game = window.game
+    }, 100)
   })
 
-  // Set up difficulty buttons
   document.querySelectorAll(".difficulty-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".difficulty-btn").forEach((b) => b.classList.remove("active"))
@@ -69,19 +71,5 @@ document.addEventListener("DOMContentLoaded", () => {
     })
   })
 
-  // Set up paddle speed slider
-  const paddleSpeedSlider = document.getElementById("paddle-speed-slider")
-  const paddleSpeedValue = document.getElementById("paddle-speed-value")
-
-  if (paddleSpeedSlider) {
-    paddleSpeedSlider.addEventListener("input", (e) => {
-      const speed = Number.parseInt(e.target.value)
-      paddleSpeedValue.textContent = speed
-      game.setPaddleSpeed(speed)
-    })
-
-    // Set initial paddle speed
-    game.setPaddleSpeed(Number.parseInt(paddleSpeedSlider.value))
-    paddleSpeedValue.textContent = paddleSpeedSlider.value
-  }
+  window.game = game
 })

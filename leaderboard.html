@@ -2,269 +2,57 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Pong - Leaderboard</title>
-  <style>
-    .a-link {
-      text-decoration: none;
-    }
-    :root {
-      --primary-color: #fff;
-      --glow-color: rgba(255, 255, 255, 0.8);
-      --background-color: #000;
-      --accent-color: #00f3ff;
-      --secondary-color: #ff0077;
-      --overlay-color: rgba(0, 0, 0, 0.8);
-      font-family: 'Arial', sans-serif;
-      font-synthesis: none;
-      text-rendering: optimizeLegibility;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #000;
-      color: #fff;
-      touch-action: manipulation;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-      border-bottom: 2px solid #333;
-      padding-bottom: 20px;
-    }
-
-    h1 {
-      font-size: 5rem;
-      margin-bottom: 2rem;
-      text-shadow: 0 0 10px var(--glow-color);
-      letter-spacing: 10px;
-    }
-
-    .back-button {
-      background-color: #2196F3;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 16px;
-      text-decoration: none;
-      display: inline-block;
-    }
-
-    .back-button:hover {
-      background-color: #0b7dda;
-    }
-
-    .leaderboard-container {
-      background-color: #111;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    }
-
-    .leaderboard-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .leaderboard-header h2 {
-      margin: 0;
-      font-size: 24px;
-    }
-
-    .filter-controls {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-
-    .filter-controls select {
-      padding: 8px;
-      border-radius: 4px;
-      background-color: #333;
-      color: white;
-      border: 1px solid #444;
-    }
-
-    .leaderboard-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .leaderboard-table th,
-    .leaderboard-table td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #333;
-    }
-
-    .leaderboard-table th {
-      background-color: #222;
-      cursor: pointer;
-    }
-
-    .leaderboard-table th:hover {
-      background-color: #2c2c2c;
-    }
-
-    .leaderboard-table tr:nth-child(even) {
-      background-color: #0a0a0a;
-    }
-
-    .leaderboard-table tr:hover {
-      background-color: #1a1a1a;
-    }
-
-    .loading, .no-results {
-      text-align: center;
-      padding: 40px;
-      font-size: 18px;
-      color: #888;
-    }
-
-    .winner {
-      color: #4CAF50;
-      font-weight: bold;
-    }
-
-    .refresh-button {
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .refresh-button:hover {
-      background-color: #45a049;
-    }
-
-    @media (max-width: 768px) {
-      .leaderboard-table {
-        font-size: 14px;
-      }
-
-      .leaderboard-table th,
-      .leaderboard-table td {
-        padding: 8px;
-      }
-
-      .filter-controls {
-        flex-direction: column;
-        gap: 10px;
-      }
-    }
-    .mode-btn,
-    .difficulty-btn {
-      padding: 0.5rem 1.5rem;
-      font-size: 1rem;
-      background-color: transparent;
-      color: var(--primary-color);
-      border: 1px solid var(--primary-color);
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .mode-btn:hover,
-    .difficulty-btn:hover {
-      background-color: var(--primary-color);
-      color: var(--background-color);
-    }
-
-    .mode-btn.active,
-    .difficulty-btn.active {
-      background-color: var(--primary-color);
-      color: var(--background-color);
-      box-shadow: 0 0 10px var(--glow-color);
-    }
-    h1 {
-      font-size: 24px;
-    }
-
-    .leaderboard-header h2 {
-      font-size: 20px;
-    }
-
-    .container {
-      padding: 10px;
-    }
-
-    /* Make table scrollable horizontally on mobile */
-    .leaderboard-container {
-      padding: 10px;
-      overflow-x: auto;
-    }
-
-    .leaderboard-table {
-      min-width: 600px;
-    }
-  </style>
+  <link rel="stylesheet" href="css/leaderboard.css">
+  <title>Pong - лидерборд</title>
 </head>
 <body>
   <div class="container">
     <header>
       <h1>Pong Leaderboard</h1>
-      <a href="index.html" class="difficulty-btn a-link">Back to Game</a>
+      <a href="index.html" class="difficulty-btn a-link">Вернуться в игру</a>
     </header>
 
     <div class="leaderboard-container">
       <div class="leaderboard-header">
         <h2>Game Results</h2>
-        <button id="refresh-button" class="difficulty-btn a-link">Refresh</button>
+        <button id="refresh-button" class="difficulty-btn a-link">Обновить</button>
       </div>
 
       <div class="filter-controls">
         <select id="game-mode-filter">
-          <option value="all">All Game Modes</option>
-          <option value="1 Player">Single Player</option>
-          <option value="2 Players">Two Players</option>
+          <option value="all">Все режимы</option>
+          <option value="1 Player">Один игрок</option>
+          <option value="2 Players">Два игрока</option>
         </select>
 
         <select id="difficulty-filter">
-          <option value="all">All Difficulties</option>
-          <option value="easy">Easy</option>
-          <option value="medium">Medium</option>
-          <option value="hard">Hard</option>
+          <option value="all">Все сложности</option>
+          <option value="easy">Лёгкий</option>
+          <option value="medium">Средний</option>
+          <option value="hard">Сложный</option>
         </select>
       </div>
 
       <table class="leaderboard-table">
         <thead>
           <tr>
-            <th data-sort="rank">Rank</th>
-            <th data-sort="player">Player(s)</th>
-            <th data-sort="score">Score</th>
-            <th data-sort="winner">Winner/Difficulty</th>
-            <th data-sort="date">Date & Time</th>
+            <th data-sort="rank">Место</th>
+            <th data-sort="player">Игрок(и)</th>
+            <th data-sort="score">Очки</th>
+            <th data-sort="winner">Победитель/Сложность</th>
+            <th data-sort="date">Дата</th>
           </tr>
         </thead>
         <tbody id="leaderboard-table-body">
           <tr>
-            <td colspan="5" class="loading">Loading leaderboard data...</td>
+            <td colspan="5" class="loading">Загружаем данные лидерборда...</td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <script type="module" src="/leaderboard-page.js"></script>
+  <script type="module" src="/js/leaderboard-page.js"></script>
 </body>
 </html>
