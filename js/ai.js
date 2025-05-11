@@ -14,6 +14,8 @@ export class AI {
         document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
         e.target.classList.add('active');
         this.setDifficulty(e.target.id != 'dynamic' ? e.target.id: 'easy');
+        this.dynamicDifficultyEnabled = (e.target.id == 'dynamic');
+        console.log(e.target.id);
       });
     });
   }

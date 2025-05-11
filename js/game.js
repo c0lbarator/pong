@@ -30,7 +30,6 @@ export class Game {
     this.aiPaddle = new Paddle(this.canvas.width - 30 - 10, this.canvas.height / 2 - 40, 10, 80, this.paddleSpeed)
     this.ai = new AI(this.aiPaddle, this.ball)
     this.score = new Score()
-
     this.update = this.update.bind(this)
     this.render = this.render.bind(this)
     this.gameLoop = this.gameLoop.bind(this)
@@ -82,8 +81,8 @@ export class Game {
     if (document.getElementById("mobile-fullscreen-btn")) {
       document.getElementById("mobile-fullscreen-btn").addEventListener("click", this.toggleFullscreen)
     }
-
-    {{ this.difficultyButtons = document.querySelectorAll('.difficulty-btn');
+    document.getElementById("save-result-button").addEventListener("click", this.saveGameResult)
+    /*{{ this.difficultyButtons = document.querySelectorAll('.difficulty-btn');
     const handleDifficultyClick = (e) => {
       this.difficultyButtons.forEach(b => b.classList.remove('active'));
       e.target.classList.add('active');
@@ -94,7 +93,7 @@ export class Game {
 
     this.difficultyButtons.forEach(btn => {
       btn.addEventListener('click', this.handleDifficultyClick);
-    }); }}
+    }); }}*/
     this.keys = {
       ArrowUp: false,
       ArrowDown: false,
@@ -102,7 +101,17 @@ export class Game {
       s: false,
     }
   }
-
+  updateDifficultyDisplay(difficulty) {
+    const difficultyBadge = document.querySelector('#current-difficulty');
+    if (difficultyBadge) {
+      difficultyBadge.textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+      
+      const badgeContainer = difficultyBadge.closest('.difficulty-badge');
+            
+      badgeContainer.classList.remove('easy', 'medium', 'hard', 'dynamic');
+      badgeContainer.classList.add(difficulty);
+    }
+  }
   cleanupEventListeners() {
     window.removeEventListener("keydown", this.handleKeydown)
     window.removeEventListener("keyup", this.handleKeyup)
@@ -122,9 +131,9 @@ export class Game {
     }
 
     document.getElementById("save-result-button").removeEventListener("click", this.saveGameResult)
-    this.difficultyButtons.forEach(btn => {
+    /*this.difficultyButtons.forEach(btn => {
       btn.removeEventListener('click', this.handleDifficultyClick);
-    });
+    });*/
   }
 
   setPaddleSpeed(speed) {
@@ -344,13 +353,18 @@ export class Game {
   }
 
   checkDynamicDifficulty() {
-    if (!this.isTwoPlayerMode && this.difficulty == 'dynamic') {
+    if (!this.isTwoPlayerMode && this.ai.dynamicDifficultyEnabled) {
       if (this.score.playerScore === 4) {
         this.ai.setDifficulty('medium');
+        this.updateDifficultyDisplay(this.ai.difficulty != 'dynamic' ? this.ai.difficulty: 'easy');
+        console.log("changed to medium!");
       } else if (this.score.playerScore === 8) {
         this.ai.setDifficulty('hard');
+        this.updateDifficultyDisplay(this.ai.difficulty != 'dynamic' ? this.ai.difficulty: 'easy');
+        console.log("changed to hard!");
       }
     }
+    console.log(this.ai.dynamicDifficultyEnabled);
   }
 
   render() {
@@ -393,6 +407,9 @@ export class Game {
       this.lastTime = performance.now()
       this.animationFrameId = requestAnimationFrame(this.gameLoop)
       this.updateMobileControlsVisibility()
+      document.getElementById("game-info").classList.remove("hidden")
+      this.updateDifficultyDisplay(this.ai.difficulty != 'dynamic' ? this.ai.difficulty: 'easy');
+
     }
   }
 
