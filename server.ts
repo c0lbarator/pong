@@ -46,6 +46,7 @@ function errorResponse(message: string, status = 500, errorDetails?: any): Respo
 async function handleSaveResult(request: Request): Promise<Response> {
     try {
         const data = await request.json();
+        data.playerName.slice(0, 11);
         if (typeof data.playerScore !== 'number' || typeof data.playerName !== 'string') {
             return errorResponse("Invalid data format: body must contain 'playerScore' (number) and 'playerName' (string)", 400);
         }
