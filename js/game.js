@@ -276,7 +276,7 @@ export class Game {
 
   handleKeydown(e) {
     if (e.code in this.keys) {
-      this.keys[e.key] = true
+      this.keys[e.code] = true
     }
 
     if (e.key === "Escape" && this.isRunning) {
@@ -286,7 +286,7 @@ export class Game {
 
   handleKeyup(e) {
     if (e.code in this.keys) {
-      this.keys[e.key] = false
+      this.keys[e.code] = false
     }
   }
 
