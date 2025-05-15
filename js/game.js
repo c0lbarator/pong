@@ -100,14 +100,8 @@ export class Game {
     this.keys = {
       ArrowUp: false,
       ArrowDown: false,
-      w: false,
-      s: false,
-      W: false,
-      S: false,
-      ц: false, 
-      Ц: false,
-      ы: false,
-      Ы: false
+      KeyW: false,
+      KeyS: false
     }
   }
   updateDifficultyDisplay(difficulty) {
@@ -281,7 +275,7 @@ export class Game {
   }
 
   handleKeydown(e) {
-    if (e.key in this.keys) {
+    if (e.code in this.keys) {
       this.keys[e.key] = true
     }
 
@@ -291,7 +285,7 @@ export class Game {
   }
 
   handleKeyup(e) {
-    if (e.key in this.keys) {
+    if (e.code in this.keys) {
       this.keys[e.key] = false
     }
   }
@@ -477,8 +471,8 @@ export class Game {
     this.keys = {
       ArrowUp: false,
       ArrowDown: false,
-      w: false,
-      s: false,
+      KeyW: false,
+      KeyS: false,
     }
   }
 
@@ -496,8 +490,8 @@ export class Game {
   }
 
   update(deltaTime) {
-    if (this.keys.w || this.keys.W || this.keys.ц || this.keys.Ц) this.playerPaddle.moveUp()
-    if (this.keys.s || this.keys.S || this.keys.ы || this.keys.Ы) this.playerPaddle.moveDown()
+    if (this.keys.KeyW) this.playerPaddle.moveUp()
+    if (this.keys.KeyS) this.playerPaddle.moveDown()
 
     if (this.isTwoPlayerMode) {
       if (this.keys.ArrowUp) this.aiPaddle.moveUp()
