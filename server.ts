@@ -82,7 +82,58 @@ async function handleGetLeaderboard(): Promise<Response> {
         return errorResponse(error.message || "Failed to retrieve leaderboard", 500, error);
     }
 }
+async function handleEditLeaderboard(request: Request): Promise<Response> {
+    const url = new URL(request.url);
+    const adminPwdFromQuery = url.searchParams.get("admin_pwd");
+    const resultId = url.searchParams.get("result_id");
 
+    // 1. Проверка наличия обязательных параметров
+    if (!adminPwdFromQuery || !resultId) {
+        return errorResponse("Missing parameters: 'admin_pwd' and 'result_id' are required.", 400);
+    }
+
+    // 2. Получение секретного пароля из окружения Deno Deploy
+    // Имя переменной окружения должно быть установлено в настройках Deno Deploy
+    const secretAdminPassword = Deno.env.get("admin_word");
+
+    // Проверка, что переменная окружения вообще установлена
+    if (!secretAdminPassword) {
+        console.error("ADMIN_word environment variable is not set! Cannot authenticate edit requests.");
+        // Это ошибка сервера, не клиента. Пингуем себя, чтобы знать, что конфиг кривой.
+        return errorResponse("Internal server configuration error.", 500);
+    }
+
+    // 3. Валидация пароля
+    if (adminPwdFromQuery !== secretAdminPassword) {
+        // Возвращаем ошибку аутентификации/доступа
+        console.warn(`Unauthorized attempt to edit with wrong password for ID: ${resultId}`);
+        return errorResponse("Invalid admin password.", 403); // 403 Forbidden - доступ запрещен
+    }
+
+    // 4. Попытка удаленияG записи из KV
+    try {
+        const key = ["gameResults", resultId];
+
+        // Опционально: Проверим, существует ли запись, чтобы вернуть 404, если нет
+        const entry = await kv.get(key);
+        if (!entry.value) {
+             console.log(`Attempted to delete non-existent game result with ID: ${resultId}`);
+             // Запись не найдена или уже удалена
+             return errorResponse(`Game result with ID "${resultId}" not found.`, 404); // 404 Not Found
+        }
+
+        // Запись существует, удаляем
+        await kv.delete(key);
+        console.log(`Deleted game result with ID: ${resultId}`);
+
+        // 5. Успешный ответ
+        return jsonResponse({ success: true, deletedId: resultId, message: "Game result deleted successfully." });
+
+    } catch (error: any) {
+        // Обработка ошибок при работе с KV
+        return errorResponse(error.message || `Failed to delete game result with ID: ${resultId}`, 500, error);
+    }
+}
 /**
  * Основной обработчик всех входящих запросов.
  */
@@ -110,6 +161,11 @@ async function requestHandler(req: Request): Promise<Response> {
             }
             // Если метод не GET, запрос упадет в обработку статических файлов или 404
             break;
+        case "/api/leaderboard_edit":
+           if (method === "GET") {
+               return handleEditLeaderboard(req);
+           }
+           break;
     }
 
     // --- ОБРАБОТКА СТАТИЧЕСКИХ ФАЙЛОВ ---
