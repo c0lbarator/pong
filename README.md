@@ -9,7 +9,7 @@
 Для лидерборда необходим Deno server, а ещё через него можно одной командой запустить и фронт, и бэк
 
 
-\`\`\`bash
+```bash
 # Установите Deno, если ещё этого не сделали
 # На macOS, Linux:
 curl -fsSL https://deno.land/x/install/install.sh | sh
@@ -19,7 +19,7 @@ iwr https://deno.land/x/install/install.ps1 -useb | iex
 
 # Запустите сервер
 deno run --allow-net --allow-read --unstable-kv server.ts
-\`\`\`
+```
 
 Сервер будет запущен по умолчанию по адресу http://localhost:8000.
 
