@@ -39,8 +39,8 @@ deno run --allow-net --allow-read --unstable-kv server.ts
 ## Страницы
 
 - **Главная страница (index.html)**: интерфейс игры
-- **Лидерборд (leaderboard.html)**: View all saved game results with filtering and sorting options Посмотреть все сохранённые результы в игре с фильтрацией по сложности и режиму игры
-- **Об игре (about.html)**: Information about the game, how to play, and technical details Информация об игре, управлении в игре и технических деталях реализации
+- **Лидерборд (leaderboard.html)**: Посмотреть все сохранённые результы в игре с фильтрацией по сложности и режиму игры
+- **Об игре (about.html)**: Информация об игре, управлении в игре и технических деталях реализации
 
 
 ## Структура скриптов
